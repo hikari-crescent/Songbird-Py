@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use pyo3::prelude::*;
-use tokio::sync::Mutex;
-use songbird::Driver as _Driver;
 use songbird::id::{ChannelId, GuildId, UserId};
+use songbird::Driver as _Driver;
+use tokio::sync::Mutex;
 
 use crate::exceptions::CouldNotConnectToRTPError;
 
@@ -63,6 +63,15 @@ impl Driver {
                 Err(err) => Err(CouldNotConnectToRTPError::new_err(format!("{:?}", err))),
                 Ok(_) => Ok(()),
             }
+        })
+    }
+
+    fn leave<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let driver = self.driver.clone();
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            driver.lock().await.as_mut().unwrap().leave();
+            Ok(())
         })
     }
 }

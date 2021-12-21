@@ -11,6 +11,9 @@ class Driver:
     ) -> None:
         ...
 
+    async def leave() -> None:
+        ...
+
 class SongbirdError(Exception):
     ...
 
