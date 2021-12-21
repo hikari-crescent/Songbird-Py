@@ -10,3 +10,6 @@ class Driver:
         user_id: int
     ) -> None:
         ...
+
+class CouldNotConnectToRTPError(Exception):
+    ...
