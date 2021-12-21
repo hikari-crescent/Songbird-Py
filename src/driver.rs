@@ -1,14 +1,15 @@
 use std::sync::Arc;
 
 use pyo3::prelude::*;
-use songbird::id;
 use tokio::sync::Mutex;
+use songbird::Driver as _Driver;
+use songbird::id::{ChannelId, GuildId, UserId};
 
 use crate::exceptions::CouldNotConnectToRTPError;
 
 #[pyclass]
 pub struct Driver {
-    driver: Arc<Mutex<Option<songbird::Driver>>>,
+    driver: Arc<Mutex<Option<_Driver>>>,
 }
 
 #[pymethods]
@@ -25,7 +26,7 @@ impl Driver {
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let mut guard = driver.lock().await;
-            *guard = Some(songbird::Driver::default());
+            *guard = Some(_Driver::default());
             Ok(())
         })
     }
@@ -49,12 +50,12 @@ impl Driver {
                 .as_mut()
                 .unwrap()
                 .connect(songbird::ConnectionInfo {
-                    channel_id: Some(id::ChannelId::from(channel_id)),
+                    channel_id: Some(ChannelId::from(channel_id)),
                     endpoint: endpoint,
-                    guild_id: id::GuildId::from(guild_id),
+                    guild_id: GuildId::from(guild_id),
                     session_id: session_id,
                     token: token,
-                    user_id: id::UserId::from(user_id),
+                    user_id: UserId::from(user_id),
                 })
                 .await;
 
