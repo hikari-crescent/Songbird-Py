@@ -1,19 +1,14 @@
-use pyo3::prelude::*;
-use songbird::id;
-
-use fast_async_mutex::rwlock::RwLock;
-use pyo3::create_exception;
 use std::sync::Arc;
 
-create_exception!(
-    module,
-    CouldNotConnectToRTPError,
-    pyo3::exceptions::PyException
-);
+use pyo3::prelude::*;
+use songbird::id;
+use tokio::sync::Mutex;
+
+use crate::exceptions::CouldNotConnectToRTPError;
 
 #[pyclass]
 pub struct Driver {
-    driver: Arc<RwLock<Option<songbird::Driver>>>,
+    driver: Arc<Mutex<Option<songbird::Driver>>>,
 }
 
 #[pymethods]
@@ -21,7 +16,7 @@ impl Driver {
     #[new]
     fn new() -> PyResult<Self> {
         Ok(Driver {
-            driver: Arc::new(RwLock::new(None)),
+            driver: Arc::new(Mutex::new(None)),
         })
     }
 
@@ -29,7 +24,7 @@ impl Driver {
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            let mut guard = driver.write_owned().await;
+            let mut guard = driver.lock().await;
             *guard = Some(songbird::Driver::default());
             Ok(())
         })
@@ -49,7 +44,7 @@ impl Driver {
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let res = driver
-                .write()
+                .lock()
                 .await
                 .as_mut()
                 .unwrap()
@@ -64,9 +59,7 @@ impl Driver {
                 .await;
 
             match res {
-                Err(err) => Err(CouldNotConnectToRTPError::new_err(
-                    format!("{:?}", err),
-                )),
+                Err(err) => Err(CouldNotConnectToRTPError::new_err(format!("{:?}", err))),
                 Ok(_) => Ok(()),
             }
         })

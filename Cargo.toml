@@ -17,8 +17,7 @@ path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
-fast-async-mutex = "*"
+tokio = { version = "1", features = ["full", "sync"] }
 
 [dependencies.songbird]
 version = "0.2.0"

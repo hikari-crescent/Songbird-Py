@@ -4,3 +4,8 @@
 *.pyc
 
 test.py
+
+# Editors
+.idea
+.vscode
+.vs

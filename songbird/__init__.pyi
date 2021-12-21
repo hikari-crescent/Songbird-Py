@@ -11,5 +11,8 @@ class Driver:
     ) -> None:
         ...
 
-class CouldNotConnectToRTPError(Exception):
+class SongbirdError(Exception):
+    ...
+
+class CouldNotConnectToRTPError(SongbirdError):
     ...
