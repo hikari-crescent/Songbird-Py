@@ -9,3 +9,6 @@ test.py
 .idea
 .vscode
 .vs
+
+# Sound
+*.mp3

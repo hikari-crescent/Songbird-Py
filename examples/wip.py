@@ -37,7 +37,7 @@ class Bot(Client):
             user_id=state.user_id
         )
 
-        print(driver)
+        print("Done awaiting")
 
 
 Bot("YOUR TOKEN HERE").run()
