@@ -2,3 +2,5 @@
 /venv
 *.so
 *.pyc
+
+test.py
