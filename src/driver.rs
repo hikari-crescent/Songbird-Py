@@ -6,7 +6,6 @@ use tokio::sync::Mutex;
 
 use songbird::id::{ChannelId, GuildId, UserId};
 use songbird::input::{Input, Reader};
-use songbird::Config;
 use songbird::Driver as _Driver;
 
 use crate::exceptions::CouldNotConnectToRTPError;
@@ -87,7 +86,7 @@ impl Driver {
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             println!("{:?}", driver.lock().await.as_ref().unwrap());
-            let source = songbird::ytdl("https://www.youtube.com/watch?v=6YBDo5S8soo")
+            let source = songbird::ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw")
                 .await
                 .unwrap();
 

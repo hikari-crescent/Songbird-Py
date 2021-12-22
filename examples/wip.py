@@ -1,4 +1,4 @@
-from asyncio import create_task
+from asyncio import create_task, sleep
 
 from songbird import Driver
 from pincer.client import Client
@@ -37,7 +37,9 @@ class Bot(Client):
             user_id=state.user_id
         )
 
-        print("Done awaiting")
+        await driver.play()
+
+        await sleep(1000000000000)
 
 
 Bot("YOUR TOKEN HERE").run()
