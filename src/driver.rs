@@ -6,22 +6,22 @@ use tokio::sync::Mutex;
 
 use songbird::id::{ChannelId, GuildId, UserId};
 use songbird::input::{Input, Reader};
-use songbird::Driver as _Driver;
+use songbird::Driver;
 
 use crate::exceptions::CouldNotConnectToRTPError;
 
-#[pyclass]
-pub struct Driver {
-    driver: Arc<Mutex<Option<_Driver>>>,
+#[pyclass(name = "Driver")]
+pub struct PyDriver {
+    driver: Arc<Mutex<Option<Driver>>>,
 }
 
 #[pymethods]
-impl Driver {
+impl PyDriver {
     #[new]
-    fn new() -> PyResult<Self> {
-        Ok(Driver {
+    fn new() -> Self {
+        PyDriver {
             driver: Arc::new(Mutex::new(None)),
-        })
+        }
     }
 
     fn make_driver<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
@@ -29,7 +29,7 @@ impl Driver {
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let mut guard = driver.lock().await;
-            *guard = Some(_Driver::default());
+            *guard = Some(Driver::default());
             Ok(())
         })
     }
@@ -64,10 +64,7 @@ impl Driver {
 
             match res {
                 Err(err) => Err(CouldNotConnectToRTPError::new_err(format!("{:?}", err))),
-                Ok(_) => {
-                    println!("Connected to discord from rust");
-                    Ok(())
-                }
+                Ok(_) => Ok(()),
             }
         })
     }
@@ -91,9 +88,6 @@ impl Driver {
                 .unwrap();
 
             let mgr = driver.lock().await.as_mut().unwrap().play_source(source);
-            mgr.play().unwrap();
-            mgr.set_volume(1.).unwrap();
-
             println!("Playing song...");
             println!("{:?}", driver.lock().await.as_ref().unwrap());
 
