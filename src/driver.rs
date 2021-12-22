@@ -82,14 +82,11 @@ impl PyDriver {
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            println!("{:?}", driver.lock().await.as_ref().unwrap());
             let source = songbird::ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw")
                 .await
                 .unwrap();
 
-            let mgr = driver.lock().await.as_mut().unwrap().play_source(source);
-            println!("Playing song...");
-            println!("{:?}", driver.lock().await.as_ref().unwrap());
+            driver.lock().await.as_mut().unwrap().play_source(source);
 
             Ok(())
         })
