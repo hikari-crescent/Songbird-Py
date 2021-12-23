@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable, Awaitable, Any
 
 from hikari import snowflakes, VoiceEvent
-from hikari.api import VoiceComponent, VoiceConnection, shard
+from hikari.api import VoiceComponent, VoiceConnection
 
 from songbird import Driver, Playable
 
