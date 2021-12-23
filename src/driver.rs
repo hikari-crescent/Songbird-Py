@@ -1,14 +1,12 @@
-use std::fs::File;
 use std::sync::Arc;
 
 use pyo3::prelude::*;
+use songbird::id::{ChannelId, GuildId, UserId};
+use songbird::Driver;
 use tokio::sync::Mutex;
 
-use songbird::id::{ChannelId, GuildId, UserId};
-use songbird::input::{Input, Reader};
-use songbird::Driver;
-
 use crate::exceptions::CouldNotConnectToRTPError;
+use crate::input::PyPlayable;
 
 #[pyclass(name = "Driver")]
 pub struct PyDriver {
@@ -78,16 +76,22 @@ impl PyDriver {
         })
     }
 
-    fn play<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
+    fn play<'p>(&'p self, py: Python<'p>, reader: &'p PyPlayable) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
+        let source = reader.source.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            let source = songbird::ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw")
+            let source = source.lock().await.get_input().await;
+            if let Err(err) = source {
+                return Err(err);
+            }
+
+            driver
+                .lock()
                 .await
-                .unwrap();
-
-            driver.lock().await.as_mut().unwrap().play_source(source);
-
+                .as_mut()
+                .unwrap()
+                .play_source(source.unwrap());
             Ok(())
         })
     }

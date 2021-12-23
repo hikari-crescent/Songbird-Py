@@ -1,6 +1,6 @@
 from asyncio import create_task, sleep
 
-from songbird import Driver
+from songbird import Driver, Playable
 from pincer.client import Client
 from pincer.core.dispatch import GatewayDispatch
 from pincer.objects import VoiceServerUpdateEvent, VoiceState
@@ -37,7 +37,7 @@ class Bot(Client):
             user_id=state.user_id
         )
 
-        await driver.play()
+        await driver.play(Playable.from_url("https://www.youtube.com/watch?v=HNzcxbzXwpU"))
 
         await sleep(1000000000000)
 
