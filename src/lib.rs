@@ -2,7 +2,8 @@ use pyo3::prelude::*;
 
 mod exceptions;
 use exceptions::{
-    CouldNotConnectToRTPError, CouldNotOpenFileError, FfmpegError, SongbirdError, YtdlError,
+    CouldNotConnectToRTPError, CouldNotOpenFileError, FfmpegError, SongbirdError,
+    UseAsyncConstructorError, YtdlError,
 };
 
 mod driver;
@@ -23,6 +24,10 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     )?;
     m.add("FfmpegError", py.get_type::<FfmpegError>())?;
     m.add("SongbirdError", py.get_type::<SongbirdError>())?;
+    m.add(
+        "UseAsyncConstructorError",
+        py.get_type::<UseAsyncConstructorError>(),
+    )?;
     m.add("YtdlError", py.get_type::<YtdlError>())?;
 
     Ok(())

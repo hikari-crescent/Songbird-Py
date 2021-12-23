@@ -1,5 +1,6 @@
 class Driver:
-    async def make_driver() -> None:
+    @staticmethod
+    async def create() -> Driver:
         ...
 
     async def connect(

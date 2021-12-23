@@ -5,6 +5,7 @@ from pincer.client import Client
 from pincer.core.dispatch import GatewayDispatch
 from pincer.objects import VoiceServerUpdateEvent, VoiceState
 
+
 class Bot(Client):
     @Client.event
     async def on_ready(self):
@@ -26,8 +27,7 @@ class Bot(Client):
         state: VoiceState = await wait_for_state
         server: VoiceServerUpdateEvent = await wait_for_server
 
-        driver = Driver()
-        await driver.make_driver()
+        driver = await Driver.create()
         await driver.connect(
             token=server.token,
             endpoint=server.endpoint,

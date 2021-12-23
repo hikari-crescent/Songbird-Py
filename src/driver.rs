@@ -5,30 +5,29 @@ use songbird::id::{ChannelId, GuildId, UserId};
 use songbird::Driver;
 use tokio::sync::Mutex;
 
-use crate::exceptions::CouldNotConnectToRTPError;
+use crate::exceptions::{CouldNotConnectToRTPError, UseAsyncConstructorError};
 use crate::input::PyPlayable;
 
 #[pyclass(name = "Driver")]
 pub struct PyDriver {
-    driver: Arc<Mutex<Option<Driver>>>,
+    driver: Arc<Mutex<Driver>>,
 }
 
 #[pymethods]
 impl PyDriver {
     #[new]
-    fn new() -> Self {
-        PyDriver {
-            driver: Arc::new(Mutex::new(None)),
-        }
+    fn new() -> PyResult<Self> {
+        Err(UseAsyncConstructorError::new_err(
+            "`await Driver.create()` should be used to construct this class.",
+        ))
     }
 
-    fn make_driver<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
-        let driver = self.driver.clone();
-
+    #[staticmethod]
+    fn create<'p>(py: Python<'p>) -> PyResult<&'p PyAny> {
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            let mut guard = driver.lock().await;
-            *guard = Some(Driver::default());
-            Ok(())
+            Ok(PyDriver {
+                driver: Arc::new(Mutex::new(Driver::default())),
+            })
         })
     }
 
@@ -44,12 +43,12 @@ impl PyDriver {
     ) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
 
+        let endpoint = endpoint.replace("wss://", "");
+
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let res = driver
                 .lock()
                 .await
-                .as_mut()
-                .unwrap()
                 .connect(songbird::ConnectionInfo {
                     channel_id: Some(ChannelId::from(channel_id)),
                     endpoint: endpoint,
@@ -71,7 +70,7 @@ impl PyDriver {
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            driver.lock().await.as_mut().unwrap().leave();
+            driver.lock().await.leave();
             Ok(())
         })
     }
@@ -86,12 +85,7 @@ impl PyDriver {
                 return Err(err);
             }
 
-            driver
-                .lock()
-                .await
-                .as_mut()
-                .unwrap()
-                .play_source(source.unwrap());
+            driver.lock().await.play_source(source.unwrap());
             Ok(())
         })
     }
