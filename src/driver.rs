@@ -17,6 +17,7 @@ pub struct PyDriver {
 impl PyDriver {
     #[new]
     fn new() -> PyResult<Self> {
+        //! This can not create a Driver so it is raises an exception.
         Err(UseAsyncConstructorError::new_err(
             "`await Driver.create()` should be used to construct this class.",
         ))
@@ -24,6 +25,15 @@ impl PyDriver {
 
     #[staticmethod]
     fn create<'p>(py: Python<'p>) -> PyResult<&'p PyAny> {
+        //! Creates a driver for this class.
+        //! Drivers must be created in an event loop so it has to be done like this.
+        //!
+        //! ```python
+        //! from songbird import Driver
+        //! ...
+        //!
+        //! driver = await Driver.create()
+        //! ```
         pyo3_asyncio::tokio::future_into_py(py, async move {
             Ok(PyDriver {
                 driver: Arc::new(Mutex::new(Driver::default())),
@@ -41,6 +51,16 @@ impl PyDriver {
         channel_id: u64,
         user_id: u64,
     ) -> PyResult<&'p PyAny> {
+        //! Connect to a voice channel
+        //! Note: url can start with `wss://` or no protocol.
+        //!
+        //! #Arguments
+        //! * `token` - Token recieved from the Discord gateway. This is not your bot token.
+        //! * `endpoint` - Endpoint recieved from Discord gateway.
+        //! * `session_id` - Session id recieved from Discord gateway.
+        //! * `guild_id` - Guild id you want to connct to.
+        //! * `channel_id` - Channel id you want to connect to.
+        //! * `user_id` - User id of the current user.
         let driver = self.driver.clone();
 
         let endpoint = endpoint.replace("wss://", "");
@@ -67,6 +87,8 @@ impl PyDriver {
     }
 
     fn leave<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        //! Disables the driver.
+        //! This does not update your voice state to remove you from the voice channel. 
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -75,9 +97,12 @@ impl PyDriver {
         })
     }
 
-    fn play<'p>(&'p self, py: Python<'p>, reader: &'p PyPlayable) -> PyResult<&'p PyAny> {
+    fn play<'p>(&'p self, py: Python<'p>, playable: &'p PyPlayable) -> PyResult<&'p PyAny> {
+        //! Plays a Playable object.
+        //! Playable are activated when you try to play them. That means all errors are
+        //! thrown in this method.
         let driver = self.driver.clone();
-        let source = reader.source.clone();
+        let source = playable.source.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let source = source.lock().await.get_input().await;

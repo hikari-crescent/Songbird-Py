@@ -61,6 +61,10 @@ impl PyPlayable {
 
 #[pymethods]
 impl PyPlayable {
+    //! Represents an object that can be turned into an input.
+    //! Inputs are buffered in a Playable object due to Inputs not being thread safe.
+    //! This method of creating inputs allows you to use an Input multiple times in
+    //! Python, which is probably expected.
     #[staticmethod]
     fn ytdl<'p>(url: String) -> PyResult<PyPlayable> {
         Ok(Self::new(PlayableType::Ytdl(url)))
