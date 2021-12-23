@@ -40,41 +40,42 @@ class Voicebox(VoiceConnection):
 
         self = Voicebox(driver)
 
-        self._channel_id = channel_id
-        self._guild_id = guild_id
-        self._is_alive = True
-        self._shard_id = shard_id
-        self._owner = owner
+        self.__channel_id = channel_id
+        self.__guild_id = guild_id
+        self.__is_alive = True
+        self.__shard_id = shard_id
+        self.__owner = owner
 
         return self
 
     @property
     def channel_id(self) -> snowflakes.Snowflake:
         """Return the ID of the voice channel this voice connection is in."""
-        return self._channel_id
+        return self.__channel_id
 
     @property
     def guild_id(self) -> snowflakes.Snowflake:
         """Return the ID of the guild this voice connection is in."""
-        return self._guild_id
+        return self.__guild_id
 
     @property
     def is_alive(self) -> bool:
         """Return `builtins.True` if the connection is alive."""
-        return self._is_alive
+        return self.__is_alive
 
     @property
     def shard_id(self) -> int:
         """Return the ID of the shard that requested the connection."""
-        return self._shard_id
+        return self.__shard_id
 
     @property
     def owner(self) -> VoiceComponent:
         """Return the component that is managing this connection."""
-        return self._owner
+        return self.__owner
 
     async def disconnect(self) -> None:
         """Signal the process to shut down."""
+        self.__is_alive = False
         await self.driver.leave()
 
     async def join(self) -> None:
