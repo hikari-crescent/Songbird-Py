@@ -16,6 +16,7 @@ enum PlayableType {
 }
 
 pub struct PyPlayableInner {
+    /// Exists to be able to send PlayableType between threads.
     playable: PlayableType,
 }
 
@@ -48,6 +49,10 @@ impl PyPlayableInner {
 
 #[pyclass(name = "Playable")]
 pub struct PyPlayable {
+    /// Represents an object that can be turned into an input.
+    /// Inputs are buffered in a Playable object due to Inputs not being thread safe.
+    /// This method of creating inputs allows you to use an Input multiple times in
+    /// Python, which is probably expected.
     pub source: Arc<Mutex<PyPlayableInner>>,
 }
 
@@ -61,12 +66,14 @@ impl PyPlayable {
 
 #[pymethods]
 impl PyPlayable {
-    //! Represents an object that can be turned into an input.
-    //! Inputs are buffered in a Playable object due to Inputs not being thread safe.
-    //! This method of creating inputs allows you to use an Input multiple times in
-    //! Python, which is probably expected.
     #[staticmethod]
     fn ytdl<'p>(url: String) -> PyResult<PyPlayable> {
+        //! Use youtube dl to play a video from a URL
+        //! 
+        //! # Example
+        //! ```python
+        //! await driver.play(Playable.ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw"))
+        //! ```
         Ok(Self::new(PlayableType::Ytdl(url)))
     }
 
@@ -77,11 +84,18 @@ impl PyPlayable {
 
     #[staticmethod]
     fn file<'p>(filepath: String, stereo: bool) -> PyResult<PyPlayable> {
+        //! This plays the bytes from the file, DO NOT use for mp3s, etc
+        //! ffmpeg should be used instead.
         Ok(Self::new(PlayableType::File(filepath, stereo)))
     }
 
     #[staticmethod]
     fn ffmpeg<'p>(filepath: String) -> PyResult<PyPlayable> {
+        //! Function used to play most audio formats
+        //! 
+        //! # Example
+        //! ```python
+        //! await driver.play(Playable.ffmpeg("song.mp3"))
         Ok(Self::new(PlayableType::Ffmpeg(filepath)))
     }
 }
