@@ -37,7 +37,7 @@ class Bot(Client):
             user_id=state.user_id
         )
 
-        await driver.play(Playable.from_url("https://www.youtube.com/watch?v=HNzcxbzXwpU"))
+        await driver.play(Playable.ytdl("https://www.youtube.com/watch?v=HNzcxbzXwpU"))
 
         await sleep(1000000000000)
 

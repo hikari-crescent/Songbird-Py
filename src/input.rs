@@ -12,7 +12,7 @@ enum PlayableType {
     Bytes(Vec<u8>, bool),
     File(String, bool),
     Ffmpeg(String),
-    Url(String),
+    Ytdl(String),
 }
 
 pub struct PyPlayableInner {
@@ -26,7 +26,7 @@ impl PyPlayableInner {
 
     pub async fn get_input(&self) -> Result<Input, PyErr> {
         match &self.playable {
-            PlayableType::Url(url) => match songbird::ytdl(url).await {
+            PlayableType::Ytdl(url) => match songbird::ytdl(url).await {
                 Ok(res) => Ok(res),
                 Err(err) => Err(YtdlError::new_err(format!("{:?}", err))),
             },
@@ -62,22 +62,22 @@ impl PyPlayable {
 #[pymethods]
 impl PyPlayable {
     #[staticmethod]
-    fn from_url<'p>(url: String) -> PyResult<PyPlayable> {
-        Ok(Self::new(PlayableType::Url(url)))
+    fn ytdl<'p>(url: String) -> PyResult<PyPlayable> {
+        Ok(Self::new(PlayableType::Ytdl(url)))
     }
 
     #[staticmethod]
-    fn from_bytes<'p>(bytes: Vec<u8>, stereo: bool) -> PyResult<PyPlayable> {
+    fn bytes<'p>(bytes: Vec<u8>, stereo: bool) -> PyResult<PyPlayable> {
         Ok(Self::new(PlayableType::Bytes(bytes, stereo)))
     }
 
     #[staticmethod]
-    fn from_file<'p>(filepath: String, stereo: bool) -> PyResult<PyPlayable> {
+    fn file<'p>(filepath: String, stereo: bool) -> PyResult<PyPlayable> {
         Ok(Self::new(PlayableType::File(filepath, stereo)))
     }
 
     #[staticmethod]
-    fn from_ffmpeg<'p>(filepath: String) -> PyResult<PyPlayable> {
+    fn ffmpeg<'p>(filepath: String) -> PyResult<PyPlayable> {
         Ok(Self::new(PlayableType::Ffmpeg(filepath)))
     }
 }

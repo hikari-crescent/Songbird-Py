@@ -29,13 +29,17 @@ class CouldNotConnectToRTPError(SongbirdError):
 
 class Playable:
     @staticmethod
-    def from_bytes(bytes: bytes, stereo: bool) -> Playable:
+    def bytes(bytes: bytes, stereo: bool) -> Playable:
         ...
 
     @staticmethod
-    def from_ffmpeg(filename: str) -> Playable:
+    def ffmpeg(filename: str) -> Playable:
         ...
 
     @staticmethod
-    def from_url(url: str) -> Playable:
+    def ytdl(url: str) -> Playable:
+        ...
+
+    @staticmethod
+    def file(url: str) -> Playable:
         ...
