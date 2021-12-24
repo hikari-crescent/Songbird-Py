@@ -83,5 +83,5 @@ class Voicebox(VoiceConnection):
     async def notify(self, event: VoiceEvent) -> None:
         """Submit an event to the voice connection to be processed."""
 
-    async def play(self, playable: Playable):
-        await self.driver.play_source(playable)
+    async def play_source(self, playable: Playable):
+        return await self.driver.play_source(playable)

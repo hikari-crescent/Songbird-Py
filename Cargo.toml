@@ -20,8 +20,8 @@ crate-type = ["cdylib"]
 tokio = { version = "1", features = ["sync"] }
 
 [dependencies.songbird]
-version = "0.2.0"
-features = ["driver"]
+git = "https://github.com/serenity-rs/songbird"
+features = ["driver", "yt-dlp"]
 
 [dependencies.pyo3]
 version = "0.15.1"

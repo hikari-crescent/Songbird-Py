@@ -1,11 +1,8 @@
 use std::time::Duration;
 
 use pyo3::prelude::*;
-use pyo3::types::PyFunction;
 use songbird::tracks::{TrackHandle, TrackResult};
-use songbird::Event;
 
-use crate::event::PyEvent;
 use crate::exceptions::TrackError;
 
 fn handle_track_result<'p, T>(res: TrackResult<T>) -> Result<T, PyErr> {
@@ -15,7 +12,7 @@ fn handle_track_result<'p, T>(res: TrackResult<T>) -> Result<T, PyErr> {
     }
 }
 
-#[pyclass]
+#[pyclass(name = "TrackHandle")]
 pub struct PyTrackHandle {
     track_handle: TrackHandle,
 }
@@ -40,7 +37,7 @@ impl PyTrackHandle {
     fn stop(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.pause())
     }
-    #[pyo3(text_signature = "($self)")]
+    #[pyo3(text_signature = "($self, volume)")]
     fn set_volume(&self, volume: f32) -> PyResult<()> {
         handle_track_result(self.track_handle.set_volume(volume))
     }
