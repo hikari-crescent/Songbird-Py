@@ -6,14 +6,22 @@ use exceptions::{
     UseAsyncConstructorError, YtdlError,
 };
 
+mod config;
 mod driver;
-mod input;
+mod playable;
 
 /// This module is implemented in Rust.
 #[pymodule]
 fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<driver::PyDriver>()?;
-    m.add_class::<input::PyPlayable>()?;
+    m.add_class::<playable::PyPlayable>()?;
+
+    //Config
+    m.add_class::<config::PyConfig>()?;
+    m.add_class::<config::PyCryptoMode>()?;
+    m.add_class::<config::PyDecodeMode>()?;
+    m.add_class::<config::PyStrategy>()?;
+
     m.add(
         "CouldNotConnectToRTPError",
         py.get_type::<CouldNotConnectToRTPError>(),

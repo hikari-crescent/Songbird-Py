@@ -5,10 +5,10 @@ from typing import Callable, Awaitable, Any
 from hikari import snowflakes, VoiceEvent
 from hikari.api import VoiceComponent, VoiceConnection
 
-from songbird import Driver, Playable
+from songbird import Driver, Playable, Config
 
 
-class Voicebox(VoiceConnection):
+class Voicebox(VoiceConnection, Driver):
     def __init__(self, driver: Driver) -> None:
         self.driver = driver
 
@@ -27,9 +27,9 @@ class Voicebox(VoiceConnection):
         **kwargs: Any,
     ) -> Voicebox:
 
-        driver = await Driver.create()
+        self = await Voicebox.create()
 
-        await driver.connect(
+        await self.connect(
             token=token,
             endpoint=endpoint,
             session_id=session_id,
@@ -37,8 +37,6 @@ class Voicebox(VoiceConnection):
             channel_id=channel_id,
             user_id=user_id
         )
-
-        self = Voicebox(driver)
 
         self.__channel_id = channel_id
         self.__guild_id = guild_id
@@ -85,4 +83,4 @@ class Voicebox(VoiceConnection):
         """Submit an event to the voice connection to be processed."""
 
     async def play(self, playable: Playable):
-        await self.driver.play(playable)
+        await self.driver.play_source(playable)
