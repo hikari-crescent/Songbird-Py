@@ -27,10 +27,8 @@ class Voicebox(VoiceConnection):
         **kwargs: Any,
     ) -> Voicebox:
 
-        self = await Voicebox.create()
-        print(self)
-
-        await self.connect(
+        driver = await Driver.create()
+        await driver.connect(
             token=token,
             endpoint=endpoint,
             session_id=session_id,
@@ -38,6 +36,8 @@ class Voicebox(VoiceConnection):
             channel_id=channel_id,
             user_id=user_id
         )
+
+        self = Voicebox(driver)
 
         self.__channel_id = channel_id
         self.__guild_id = guild_id

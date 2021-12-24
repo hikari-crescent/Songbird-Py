@@ -8,3 +8,4 @@ create_exception!(module, CouldNotConnectToRTPError, SongbirdError);
 create_exception!(module, CouldNotOpenFileError, SongbirdError);
 create_exception!(module, YtdlError, SongbirdError);
 create_exception!(module, FfmpegError, SongbirdError);
+create_exception!(module, TrackError, SongbirdError);

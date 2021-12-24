@@ -9,6 +9,7 @@ use tokio::sync::Mutex;
 use crate::config::PyConfig;
 use crate::exceptions::{CouldNotConnectToRTPError, UseAsyncConstructorError};
 use crate::playable::PyPlayable;
+use crate::track_handle::PyTrackHandle;
 
 #[pyclass(name = "Driver")]
 pub struct PyDriver {
@@ -147,8 +148,8 @@ impl PyDriver {
                 return Err(err);
             }
 
-            driver.lock().await.play_source(source.unwrap());
-            Ok(())
+            let track_handle = driver.lock().await.play_source(source.unwrap());
+            Ok(PyTrackHandle::from(track_handle))
         })
     }
 
@@ -167,8 +168,8 @@ impl PyDriver {
                 return Err(err);
             }
 
-            driver.lock().await.play_only_source(source.unwrap());
-            Ok(())
+            let track_handle = driver.lock().await.play_only_source(source.unwrap());
+            Ok(PyTrackHandle::from(track_handle))
         })
     }
 

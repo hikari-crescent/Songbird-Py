@@ -2,13 +2,15 @@ use pyo3::prelude::*;
 
 mod exceptions;
 use exceptions::{
-    CouldNotConnectToRTPError, CouldNotOpenFileError, FfmpegError, SongbirdError,
+    CouldNotConnectToRTPError, CouldNotOpenFileError, FfmpegError, SongbirdError, TrackError,
     UseAsyncConstructorError, YtdlError,
 };
 
 mod config;
 mod driver;
 mod playable;
+mod track_handle;
+mod event;
 
 /// This module is implemented in Rust.
 #[pymodule]
@@ -22,6 +24,8 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<config::PyDecodeMode>()?;
     m.add_class::<config::PyStrategy>()?;
 
+    m.add_class::<track_handle::PyTrackHandle>()?;
+
     m.add(
         "CouldNotConnectToRTPError",
         py.get_type::<CouldNotConnectToRTPError>(),
@@ -32,6 +36,7 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     )?;
     m.add("FfmpegError", py.get_type::<FfmpegError>())?;
     m.add("SongbirdError", py.get_type::<SongbirdError>())?;
+    m.add("TrackError", py.get_type::<TrackError>())?;
     m.add(
         "UseAsyncConstructorError",
         py.get_type::<UseAsyncConstructorError>(),
