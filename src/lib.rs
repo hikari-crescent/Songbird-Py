@@ -8,7 +8,7 @@ use exceptions::{
 
 mod config;
 mod driver;
-mod playable;
+mod source;
 mod track_handle;
 mod event;
 
@@ -16,7 +16,7 @@ mod event;
 #[pymodule]
 fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<driver::PyDriver>()?;
-    m.add_class::<playable::PyPlayable>()?;
+    m.add_class::<source::PySource>()?;
 
     //Config
     m.add_class::<config::PyConfig>()?;

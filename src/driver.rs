@@ -8,7 +8,7 @@ use tokio::sync::Mutex;
 
 use crate::config::PyConfig;
 use crate::exceptions::{CouldNotConnectToRTPError, UseAsyncConstructorError};
-use crate::playable::PyPlayable;
+use crate::source::PySource;
 use crate::track_handle::PyTrackHandle;
 
 #[pyclass(name = "Driver")]
@@ -135,12 +135,12 @@ impl PyDriver {
         pyo3_asyncio::tokio::future_into_py(py, async move { Ok(driver.lock().await.is_mute()) })
     }
 
-    fn play_source<'p>(&'p self, py: Python<'p>, playable: &'p PyPlayable) -> PyResult<&'p PyAny> {
+    fn play_source<'p>(&'p self, py: Python<'p>, source: &'p PySource) -> PyResult<&'p PyAny> {
         //! Plays a Playable object.
         //! Playable are activated when you try to play them. That means all errors are
         //! thrown in this method.
         let driver = self.driver.clone();
-        let source = playable.source.clone();
+        let source = source.source.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let source = source.lock().await.get_input().await;
@@ -156,11 +156,11 @@ impl PyDriver {
     fn play_only_source<'p>(
         &'p self,
         py: Python<'p>,
-        playable: &'p PyPlayable,
+        source: &'p PySource,
     ) -> PyResult<&'p PyAny> {
         //! Same as `play_source` but stops all other sources from playing.
         let driver = self.driver.clone();
-        let source = playable.source.clone();
+        let source = source.source.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let source = source.lock().await.get_input().await;

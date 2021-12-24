@@ -5,7 +5,7 @@ from typing import Callable, Awaitable, Any
 from hikari import snowflakes, VoiceEvent
 from hikari.api import VoiceComponent, VoiceConnection
 
-from songbird import Driver, Playable, Config
+from songbird import Driver, Source, Config
 
 
 class Voicebox(VoiceConnection):
@@ -83,5 +83,5 @@ class Voicebox(VoiceConnection):
     async def notify(self, event: VoiceEvent) -> None:
         """Submit an event to the voice connection to be processed."""
 
-    async def play_source(self, playable: Playable):
-        return await self.driver.play_source(playable)
+    async def play_source(self, source: Source):
+        return await self.driver.play_source(source)

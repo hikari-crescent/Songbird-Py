@@ -15,12 +15,12 @@ enum PlayableType {
     Ytdl(String),
 }
 
-pub struct PyPlayableInner {
+pub struct PySourceInner {
     /// Exists to be able to send PlayableType between threads.
     playable: PlayableType,
 }
 
-impl PyPlayableInner {
+impl PySourceInner {
     fn new(playable: PlayableType) -> Self {
         Self { playable }
     }
@@ -47,29 +47,29 @@ impl PyPlayableInner {
     }
 }
 
-#[pyclass(name = "Playable")]
-pub struct PyPlayable {
+#[pyclass(name = "Source")]
+pub struct PySource {
     /// Represents an object that can be turned into an input.
     /// Inputs are buffered in a Playable object due to Inputs not being thread safe.
     /// This method of creating inputs allows you to use an Input multiple times in
     /// Python, which is probably expected.
-    pub source: Arc<Mutex<PyPlayableInner>>,
+    pub source: Arc<Mutex<PySourceInner>>,
 }
 
-impl PyPlayable {
+impl PySource {
     fn new(playable: PlayableType) -> Self {
         Self {
-            source: Arc::from(Mutex::from(PyPlayableInner::new(playable))),
+            source: Arc::from(Mutex::from(PySourceInner::new(playable))),
         }
     }
 }
 
 #[pymethods]
-impl PyPlayable {
+impl PySource {
     #[staticmethod]
-    fn ytdl<'p>(url: String) -> PyResult<PyPlayable> {
+    fn ytdl<'p>(url: String) -> PyResult<Self> {
         //! Use youtube dl to play a video from a URL
-        //! 
+        //!
         //! # Example
         //! ```python
         //! await driver.play(Playable.ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw"))
@@ -78,21 +78,21 @@ impl PyPlayable {
     }
 
     #[staticmethod]
-    fn bytes<'p>(bytes: Vec<u8>, stereo: bool) -> PyResult<PyPlayable> {
+    fn bytes<'p>(bytes: Vec<u8>, stereo: bool) -> PyResult<Self> {
         Ok(Self::new(PlayableType::Bytes(bytes, stereo)))
     }
 
     #[staticmethod]
-    fn file<'p>(filepath: String, stereo: bool) -> PyResult<PyPlayable> {
+    fn file<'p>(filepath: String, stereo: bool) -> PyResult<Self> {
         //! This plays the bytes from the file, DO NOT use for mp3s, etc
         //! ffmpeg should be used instead.
         Ok(Self::new(PlayableType::File(filepath, stereo)))
     }
 
     #[staticmethod]
-    fn ffmpeg<'p>(filepath: String) -> PyResult<PyPlayable> {
+    fn ffmpeg<'p>(filepath: String) -> PyResult<Self> {
         //! Function used to play most audio formats
-        //! 
+        //!
         //! # Example
         //! ```python
         //! await driver.play(Playable.ffmpeg("song.mp3"))
