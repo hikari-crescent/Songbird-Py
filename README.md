@@ -1,11 +1,6 @@
 # Songbird-Py
 Songbird bindings for python
 
-# Note
-This repo is very WIP so do not try to use it.
-
-Its public so I can share it easier.
-
 # Contributing
 Pyo3 asyncio is used with tokio.
 
@@ -28,7 +23,7 @@ Run command `maturin develop` when changes are made to the Rust src.
 
 Its a good idea to install all the dependencies.
 
-## What should you run to test your changs?
+## What should you run to test your changes?
 I recommend working off of the `hikari` example. Make sure to run `maturin develop` when anything is changed!
 
 ## Goal of the project

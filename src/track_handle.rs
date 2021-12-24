@@ -195,7 +195,6 @@ impl PyTrackHandle {
     #[getter]
     fn metadata(&self) -> PyMetadata {
         let md = &self.track_handle.metadata();
-
         PyMetadata {
             track: md.track.clone(),
             artist: md.artist.clone(),
