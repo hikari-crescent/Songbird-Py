@@ -6,12 +6,14 @@ use exceptions::{
     UseAsyncConstructorError, YtdlError,
 };
 
-mod utils;
 mod config;
 mod driver;
 mod source;
+mod track;
 mod track_handle;
-mod event;
+mod utils;
+
+use track::__pyo3_get_function_py_create_player;
 
 /// This module is implemented in Rust.
 #[pymodule]
@@ -31,8 +33,10 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<track_handle::PyTrackState>()?;
     m.add_class::<track_handle::PyLoopState>()?;
     m.add_class::<track_handle::PyMetadata>()?;
-
     m.add_class::<track_handle::PyTrackHandle>()?;
+
+    //Track
+    m.add_function(wrap_pyfunction!(py_create_player, m)?)?;
 
     m.add(
         "CouldNotConnectToRTPError",

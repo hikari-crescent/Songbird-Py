@@ -1,13 +1,13 @@
 use std::time::Duration;
 
 use pyo3::prelude::*;
-use songbird::tracks::{LoopState, PlayMode, TrackHandle, TrackResult};
+use songbird::tracks::{LoopState, PlayMode, TrackHandle, TrackResult, TrackState};
 use std::sync::Arc;
 
 use crate::exceptions::TrackError;
 use crate::utils::unwrap_duration;
 
-fn handle_track_result<'p, T>(res: TrackResult<T>) -> Result<T, PyErr> {
+pub fn handle_track_result<'p, T>(res: TrackResult<T>) -> Result<T, PyErr> {
     match res {
         Ok(t) => Ok(t),
         Err(err) => Err(TrackError::new_err(format!("{:?}", err))),
@@ -22,7 +22,7 @@ pub struct PyPlayMode {
 }
 
 impl PyPlayMode {
-    fn from(play_mode: PlayMode) -> Self {
+    pub fn from(play_mode: PlayMode) -> Self {
         Self { play_mode }
     }
 }
@@ -67,7 +67,7 @@ impl PyLoopState {
     }
 
     #[allow(dead_code)]
-    fn as_songbird_loop_state(&self) -> LoopState {
+    pub fn as_songbird_loop_state(&self) -> LoopState {
         match self.loop_state {
             Some(usize) => LoopState::Finite(usize),
             None => LoopState::Infinite,
@@ -87,6 +87,18 @@ pub struct PyTrackState {
     play_time: f64,
     #[pyo3(get, set)]
     loops: PyLoopState,
+}
+
+impl PyTrackState {
+    pub fn from(track_state: TrackState) -> Self {
+        Self {
+            playing: PyPlayMode::from(track_state.playing),
+            volume: track_state.volume,
+            position: track_state.position.as_secs_f64(),
+            play_time: track_state.play_time.as_secs_f64(),
+            loops: PyLoopState::from(track_state.loops),
+        }
+    }
 }
 
 #[pyclass(name = "Metadata")]
@@ -150,7 +162,7 @@ impl PyTrackHandle {
     fn make_playable(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.make_playable())
     }
-    #[pyo3(text_signature = "($self)")]
+    #[getter]
     fn is_seekable(&self) -> bool {
         self.track_handle.is_seekable()
     }
@@ -167,13 +179,7 @@ impl PyTrackHandle {
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let track_state = handle_track_result(track_handle.get_info().await)?;
-            Ok(PyTrackState {
-                playing: PyPlayMode::from(track_state.playing),
-                volume: track_state.volume,
-                position: track_state.position.as_secs_f64(),
-                play_time: track_state.play_time.as_secs_f64(),
-                loops: PyLoopState::from(track_state.loops),
-            })
+            Ok(PyTrackState::from(track_state))
         })
     }
     #[pyo3(text_signature = "($self)")]
