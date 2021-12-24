@@ -6,6 +6,7 @@ use exceptions::{
     UseAsyncConstructorError, YtdlError,
 };
 
+mod utils;
 mod config;
 mod driver;
 mod source;
@@ -23,6 +24,13 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<config::PyCryptoMode>()?;
     m.add_class::<config::PyDecodeMode>()?;
     m.add_class::<config::PyStrategy>()?;
+
+    //track_handler
+    m.add_class::<track_handle::PyPlayMode>()?;
+    m.add_class::<track_handle::PyTrackHandle>()?;
+    m.add_class::<track_handle::PyTrackState>()?;
+    m.add_class::<track_handle::PyLoopState>()?;
+    m.add_class::<track_handle::PyMetadata>()?;
 
     m.add_class::<track_handle::PyTrackHandle>()?;
 

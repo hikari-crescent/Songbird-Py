@@ -28,14 +28,8 @@ Run command `maturin develop` when changes are made to the Rust src.
 
 Its a good idea to install all the dependencies.
 
-### Fixing pincer limitation (Hopefully temporary)
-Go to pincer installed in venv
-
-Add to `Dispatcher` class in `pincer/core/gateway.py)`
-```python
-async def send(self, payload):
-  await self.__socket.send(payload)
-```
+## What should you run to test your changs?
+I recommend working off of the `hikari` example. Make sure to run `maturin develop` when anything is changed!
 
 ## Goal of the project
 Create API for songbird [driver](https://serenity-rs.github.io/songbird/current/songbird/driver/struct.Driver.html) and everything that is needed with it it.

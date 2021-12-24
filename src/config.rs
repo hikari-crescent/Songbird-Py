@@ -7,6 +7,8 @@ use songbird::driver::{
 };
 use songbird::Config;
 
+use crate::utils::unwrap_f64_to_duration;
+
 #[pyclass(name = "CryptoMode")]
 pub struct PyCryptoMode {
     crypto_mode: CryptoMode,
@@ -135,7 +137,7 @@ impl PyConfig {
     #[pyo3(text_signature = "($self, driver_timeout)")]
     fn set_driver_timeout(&mut self, driver_timeout: Option<f64>) {
         let config = self.config.clone();
-        self.config = config.driver_timeout(driver_timeout.map(|f| Duration::from_secs_f64(f)))
+        self.config = config.driver_timeout(unwrap_f64_to_duration(driver_timeout))
     }
 
     #[pyo3(text_signature = "($self, driver_retry)")]
@@ -150,6 +152,6 @@ impl PyConfig {
     #[pyo3(text_signature = "($self, crypto_mode)")]
     fn set_gateway_timeout(&mut self, gateway_timeout: Option<f64>) {
         let config = self.config.clone();
-        self.config = config.gateway_timeout(gateway_timeout.map(|f| Duration::from_secs_f64(f)))
+        self.config = config.gateway_timeout(unwrap_f64_to_duration(gateway_timeout))
     }
 }
