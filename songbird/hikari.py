@@ -8,7 +8,7 @@ from hikari.api import VoiceComponent, VoiceConnection
 from songbird import Driver, Playable, Config
 
 
-class Voicebox(VoiceConnection, Driver):
+class Voicebox(VoiceConnection):
     def __init__(self, driver: Driver) -> None:
         self.driver = driver
 
@@ -28,6 +28,7 @@ class Voicebox(VoiceConnection, Driver):
     ) -> Voicebox:
 
         self = await Voicebox.create()
+        print(self)
 
         await self.connect(
             token=token,

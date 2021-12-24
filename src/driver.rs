@@ -10,7 +10,7 @@ use crate::config::PyConfig;
 use crate::exceptions::{CouldNotConnectToRTPError, UseAsyncConstructorError};
 use crate::playable::PyPlayable;
 
-#[pyclass(name = "Driver", subclass, dict)]
+#[pyclass(name = "Driver")]
 pub struct PyDriver {
     driver: Arc<Mutex<Driver>>,
 }
