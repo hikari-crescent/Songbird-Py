@@ -8,17 +8,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python
+      - name: Set up Python and Rust
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-
-      - name: Enter venv
-        run: |
-          pythom -m venv venv
-          source venv/bin/activate.sh
-
-      - name: Set up cargo
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -26,6 +19,11 @@ jobs:
         with:
           command: build
           args: --release --all-features
+
+      - name: Enter venv
+        run: |
+          pythom -m venv venv
+          source venv/bin/activate.sh
 
       - name: Install dependencies
         run: |
