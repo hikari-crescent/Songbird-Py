@@ -7,13 +7,11 @@ python:
     - requirements: docs/requirements.txt
     - requirements: requirements.txt
     - method: setuptools
-      path: .
+      path: songbird
   system_packages: true
 
 build:
   os: ubuntu-20.04
-  extras:
-    - rust==1.46
   tools:
     python: "3.9"
   apt_packages:
