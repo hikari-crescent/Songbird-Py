@@ -1,4 +1,3 @@
 furo
 sphinx-design
 sphinx-rtd-theme
-rtds_action

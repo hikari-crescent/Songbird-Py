@@ -38,19 +38,7 @@ extensions = [
     'sphinx_design',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-#    'rtds_action'
 ]
-
-# The name of your GitHub repository
-rtds_action_github_repo = "Lunarmagpie/Songbird-Py"
-
-# The path where the artifact should be extracted
-# Note: this is relative to the conf.py file!
-rtds_action_path = "../songbird"
-
-rtds_action_artifact_prefix = "so-for-"
-
-rtds_action_github_token = os.environ.get("GIT_TOKEN", "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")
 
 # The "prefix" used in the `upload-artifact` step of the ac
 autodoc_default_options = {
