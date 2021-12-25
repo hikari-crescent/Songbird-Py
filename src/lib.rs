@@ -13,7 +13,8 @@ mod track;
 mod track_handle;
 mod utils;
 
-/// This module is implemented in Rust.
+/// The Songbird Python/Rust bindings
+/// This module is written in Rust 🚀
 #[pymodule]
 fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<driver::PyDriver>()?;
