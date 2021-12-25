@@ -12,6 +12,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
+      
+      - name: Enter venv
+        run: |
+          python -m venv venv
+          python venv/bin/activate.sh
 
       - name: Install libopus-dev
         run: |
@@ -29,8 +34,7 @@ jobs:
       - uses: messense/maturin-action@v1
         with:
           maturin-version: latest
-          command: build
-      - run: pip install /home/runner/work/Songbird-Py/Songbird-Py/target/wheels/songbird_py-0.1.0-cp39-cp39-linux_x86_64.whl
+          command: develop
 
       - name: Install doc dependencies
         run: |
