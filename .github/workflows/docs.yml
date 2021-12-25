@@ -14,7 +14,8 @@ jobs:
           python-version: 3.8
 
       - name: Install libopus
-        run: sudo apt -y install libopus-dev
+        run: sudo apt install libopus-dev
+        run: sudo apt install ffmpeg
 
       - uses: messense/maturin-action@v1
         with:
