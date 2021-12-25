@@ -1,4 +1,4 @@
 furo
 sphinx-design
 sphinx-rtd-theme
-rtds_action
+git+git://github.com/Lunarmagpie/Songbird-Py@main#egg=songbird-py
