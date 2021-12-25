@@ -16,7 +16,7 @@ jobs:
       - name: Enter venv
         run: |
           python -m venv venv
-          python venv/bin/activate.sh
+          source venv/bin/activate
 
       - name: Install libopus-dev
         run: |
