@@ -1,3 +1,4 @@
+use std::mem;
 use std::sync::Arc;
 
 use pyo3::prelude::*;
@@ -9,6 +10,7 @@ use tokio::sync::Mutex;
 use crate::config::PyConfig;
 use crate::exceptions::{CouldNotConnectToRTPError, UseAsyncConstructorError};
 use crate::source::PySource;
+use crate::track::PyTrack;
 use crate::track_handle::PyTrackHandle;
 
 #[pyclass(name = "Driver")]
@@ -153,11 +155,7 @@ impl PyDriver {
         })
     }
 
-    fn play_only_source<'p>(
-        &'p self,
-        py: Python<'p>,
-        source: &'p PySource,
-    ) -> PyResult<&'p PyAny> {
+    fn play_only_source<'p>(&'p self, py: Python<'p>, source: &'p PySource) -> PyResult<&'p PyAny> {
         //! Same as `play_source` but stops all other sources from playing.
         let driver = self.driver.clone();
         let source = source.source.clone();
@@ -170,6 +168,35 @@ impl PyDriver {
 
             let track_handle = driver.lock().await.play_only_source(source.unwrap());
             Ok(PyTrackHandle::from(track_handle))
+        })
+    }
+
+    fn play<'p>(&'p self, py: Python<'p>, track: &'p PyTrack) -> PyResult<&'p PyAny> {
+        //! Same as `play` but stops all other sources from playing.
+        let driver = self.driver.clone();
+        let track = track.track.clone();
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            let mut inner = track.lock().await;
+            let mut empty = None;
+            mem::swap(&mut *inner, &mut empty);
+
+            driver.lock().await.play(empty.unwrap());
+            Ok(())
+        })
+    }
+
+    fn play_only<'p>(&'p self, py: Python<'p>, track: &'p PyTrack) -> PyResult<&'p PyAny> {
+        //! Same as `play` but stops all other sources from playing.
+        let driver = self.driver.clone();
+        let track = track.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            let mut inner = track.lock().await;
+            let mut empty = None;
+            mem::swap(&mut *inner, &mut empty);
+
+            driver.lock().await.play_only(empty.unwrap());
+            Ok(())
         })
     }
 

@@ -1,10 +1,14 @@
+use std::sync::Arc;
 use std::time::Duration;
 
 use pyo3::prelude::*;
 use songbird::tracks::Track;
+use tokio::sync::Mutex;
 
 use crate::source::PySource;
-use crate::track_handle::{handle_track_result, PyLoopState, PyPlayMode, PyTrackState};
+use crate::track_handle::{
+    handle_track_result, PyLoopState, PyPlayMode, PyTrackHandle, PyTrackState,
+};
 
 #[pyfunction]
 #[pyo3(name = "create_player")]
@@ -13,71 +17,151 @@ pub fn py_create_player<'p>(py: Python<'p>, source: &'p PySource) -> PyResult<&'
     pyo3_asyncio::tokio::future_into_py(py, async move {
         let pyinput = source.lock().await;
         let source = pyinput.get_input().await?;
-        let (track, _) = songbird::create_player(source);
-        Ok(PyTack { track })
+        let (track, handle) = songbird::create_player(source);
+
+        Ok((
+            PyTrack {
+                track: Arc::from(Mutex::from(Some(track))),
+            },
+            PyTrackHandle::from(handle),
+        ))
     })
 }
 
 #[pyclass]
-pub struct PyTack {
-    pub track: Track,
+pub struct PyTrack {
+    pub track: Arc<Mutex<Option<Track>>>,
 }
 
 #[pymethods(name = "Track")]
-impl PyTack {
+impl PyTrack {
     #[pyo3(text_signature = "($self)")]
-    fn play(&mut self) -> () {
-        self.track.play();
-    }
-    #[pyo3(text_signature = "($self)")]
-    fn pause(&mut self) -> () {
-        self.track.pause();
-    }
-    #[pyo3(text_signature = "($self)")]
-    fn stop(&mut self) -> () {
-        self.track.stop();
-    }
-    #[getter]
-    fn playing(&mut self) -> PyPlayMode {
-        PyPlayMode::from(self.track.playing())
-    }
-    #[getter]
-    fn get_volume(&mut self) -> f32 {
-        self.track.volume()
+    fn play<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            track.lock().await.as_mut().unwrap().play();
+            Ok(())
+        })
     }
     #[pyo3(text_signature = "($self)")]
-    fn set_volume(&mut self, volume: f32) -> () {
-        self.track.set_volume(volume);
+    fn pause<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            track.lock().await.as_mut().unwrap().pause();
+            Ok(())
+        })
     }
-    #[getter]
-    fn position(&mut self) -> f64 {
-        self.track.position().as_secs_f64()
+    #[pyo3(text_signature = "($self)")]
+    fn stop<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            track.lock().await.as_mut().unwrap().stop();
+            Ok(())
+        })
     }
-    #[getter]
-    fn play_time(&mut self) -> f64 {
-        self.track.play_time().as_secs_f64()
+    #[pyo3(text_signature = "($self)")]
+    fn playing<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            let play_mode = track.lock().await.as_mut().unwrap().playing();
+            Ok(PyPlayMode::from(play_mode))
+        })
+    }
+    #[pyo3(text_signature = "($self)")]
+    fn volume<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(track.lock().await.as_mut().unwrap().volume())
+        })
+    }
+    #[pyo3(text_signature = "($self, volume)")]
+    fn set_volume<'p>(&'p mut self, py: Python<'p>, volume: f32) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            track.lock().await.as_mut().unwrap().set_volume(volume);
+            Ok(())
+        })
+    }
+    #[pyo3(text_signature = "($self)")]
+    fn position<'p>(&mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(track
+                .lock()
+                .await
+                .as_mut()
+                .unwrap()
+                .position()
+                .as_secs_f64())
+        })
+    }
+    #[pyo3(text_signature = "($self)")]
+    fn play_time<'p>(&mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(track
+                .lock()
+                .await
+                .as_mut()
+                .unwrap()
+                .play_time()
+                .as_secs_f64())
+        })
     }
     #[pyo3(text_signature = "($self, loops)")]
-    fn set_loops(&mut self, loops: &PyLoopState) -> PyResult<()> {
-        handle_track_result(self.track.set_loops(loops.as_songbird_loop_state()))
+    fn set_loop_count<'p>(&mut self, py: Python<'p>, loops: &PyLoopState) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        let loops = loops.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            handle_track_result(
+                track
+                    .lock()
+                    .await
+                    .as_mut()
+                    .unwrap()
+                    .set_loops(loops.as_songbird_loop_state()),
+            )
+        })
     }
     #[pyo3(text_signature = "($self)")]
-    fn make_playable(&mut self) -> () {
-        self.track.make_playable();
-    }
-    #[getter]
-    fn state(&self) -> PyTrackState {
-        PyTrackState::from(self.track.state())
+    fn make_playable<'p>(&mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            track.lock().await.as_mut().unwrap().make_playable();
+            Ok(())
+        })
     }
     #[pyo3(text_signature = "($self)")]
-    fn seek_time(&mut self, position: f64) -> PyResult<f64> {
-        match handle_track_result(self.track.seek_time(Duration::from_secs_f64(position))) {
-            Ok(dur) => Ok(dur.as_secs_f64()),
-            Err(err) => Err(err),
-        }
+    fn state<'p>(&mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(PyTrackState::from(
+                track.lock().await.as_mut().unwrap().state(),
+            ))
+        })
     }
-    #[getter]
-    fn uuid(&self) -> String {
-        self.track.uuid().to_string()
+    #[pyo3(text_signature = "($self)")]
+    fn seek_time<'p>(&mut self, py: Python<'p>, position: f64) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            match handle_track_result(
+                track
+                    .lock()
+                    .await
+                    .as_mut()
+                    .unwrap()
+                    .seek_time(Duration::from_secs_f64(position)),
+            ) {
+                Ok(dur) => Ok(dur.as_secs_f64()),
+                Err(err) => Err(err),
+            }
+        })
+    }
+    #[pyo3(text_signature = "($self)")]
+    fn uuid<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let track = self.track.clone();
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(track.lock().await.as_mut().unwrap().uuid().to_string())
+        })
     }
 }

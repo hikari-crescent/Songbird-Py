@@ -50,7 +50,7 @@ impl PyPlayMode {
 
 #[allow(dead_code)]
 #[derive(Clone)]
-#[pyclass(name = "LoopState")]
+#[pyclass(name = "LoopCount")]
 pub struct PyLoopState {
     #[pyo3(get, set)]
     loop_state: Option<usize>,
