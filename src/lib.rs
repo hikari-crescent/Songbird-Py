@@ -32,6 +32,9 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<track_handle::PyLoopState>()?;
     m.add_class::<track_handle::PyMetadata>()?;
     m.add_class::<track_handle::PyTrackHandle>()?;
+
+    //Track
+    m.add_class::<track::PyTrack>()?;
     track::register(py, m)?;
 
     m.add(

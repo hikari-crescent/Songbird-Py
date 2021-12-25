@@ -23,5 +23,5 @@ Indices and tables
    :maxdepth: 2
    :caption: Contents:
 
-   driver
-   config
+   modules
+   songbird

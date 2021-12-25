@@ -34,7 +34,7 @@ pub(crate) fn register(py: Python, m: &PyModule) -> PyResult<()> {
     Ok(())
 }
 
-#[pyclass]
+#[pyclass(name = "Track")]
 pub struct PyTrack {
     pub track: Arc<Mutex<Option<Track>>>,
 }
