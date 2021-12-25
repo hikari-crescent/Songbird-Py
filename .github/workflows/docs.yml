@@ -21,7 +21,7 @@ jobs:
 
       - name: Enter venv
         run: |
-          pythom -m venv venv
+          python -m venv venv
           source venv/bin/activate.sh
 
       - name: Install dependencies
