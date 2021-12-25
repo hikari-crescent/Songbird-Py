@@ -57,7 +57,7 @@ pub struct PyLoopState {
 }
 
 impl PyLoopState {
-    fn from(loop_state: LoopState) -> Self {
+    pub fn from(loop_state: LoopState) -> Self {
         Self {
             loop_state: match loop_state {
                 LoopState::Finite(n) => Some(n),
@@ -65,7 +65,9 @@ impl PyLoopState {
             },
         }
     }
-
+    pub fn from_usize(n: Option<usize>) -> Self {
+        Self { loop_state: n }
+    }
     #[allow(dead_code)]
     pub fn as_songbird_loop_state(&self) -> LoopState {
         match self.loop_state {
@@ -212,7 +214,7 @@ impl PyTrackHandle {
             sample_rate: md.sample_rate,
             source_url: md.source_url.clone(),
             title: md.title.clone(),
-            thumbnail: md.thumbnail.clone()
+            thumbnail: md.thumbnail.clone(),
         }
     }
 }

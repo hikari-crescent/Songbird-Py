@@ -1,0 +1,4 @@
+hikari==2.0.0.dev104
+maturin==0.12.5
+yt-dlp==2021.12.1
+setuptools-rust==1.1.2

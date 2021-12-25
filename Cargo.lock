@@ -1486,16 +1486,6 @@ dependencies = [
 
 [[package]]
 name = "songbird"
-version = "0.1.0"
-dependencies = [
- "pyo3",
- "pyo3-asyncio",
- "songbird 0.2.0",
- "tokio",
-]
-
-[[package]]
-name = "songbird"
 version = "0.2.0"
 source = "git+https://github.com/serenity-rs/songbird#62ecfe68d640d793c0f6988f88938462ca2d54d7"
 dependencies = [
@@ -1524,6 +1514,16 @@ dependencies = [
  "url",
  "uuid",
  "xsalsa20poly1305",
+]
+
+[[package]]
+name = "songbird-py"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "pyo3-asyncio",
+ "songbird",
+ "tokio",
 ]
 
 [[package]]

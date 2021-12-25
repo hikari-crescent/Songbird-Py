@@ -13,8 +13,6 @@ mod track;
 mod track_handle;
 mod utils;
 
-use track::__pyo3_get_function_py_create_player;
-
 /// This module is implemented in Rust.
 #[pymodule]
 fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
@@ -34,9 +32,7 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<track_handle::PyLoopState>()?;
     m.add_class::<track_handle::PyMetadata>()?;
     m.add_class::<track_handle::PyTrackHandle>()?;
-
-    //Track
-    m.add_function(wrap_pyfunction!(py_create_player, m)?)?;
+    track::register(py, m)?;
 
     m.add(
         "CouldNotConnectToRTPError",

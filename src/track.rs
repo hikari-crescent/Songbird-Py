@@ -28,6 +28,12 @@ pub fn py_create_player<'p>(py: Python<'p>, source: &'p PySource) -> PyResult<&'
     })
 }
 
+#[allow(unused_variables)]
+pub(crate) fn register(py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(py_create_player, m)?)?;
+    Ok(())
+}
+
 #[pyclass]
 pub struct PyTrack {
     pub track: Arc<Mutex<Option<Track>>>,
@@ -109,7 +115,7 @@ impl PyTrack {
         })
     }
     #[pyo3(text_signature = "($self, loops)")]
-    fn set_loop_count<'p>(&mut self, py: Python<'p>, loops: &PyLoopState) -> PyResult<&'p PyAny> {
+    fn set_loop_count<'p>(&mut self, py: Python<'p>, loops: Option<usize>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
         let loops = loops.clone();
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -119,7 +125,7 @@ impl PyTrack {
                     .await
                     .as_mut()
                     .unwrap()
-                    .set_loops(loops.as_songbird_loop_state()),
+                    .set_loops(PyLoopState::from_usize(loops).as_songbird_loop_state()),
             )
         })
     }
