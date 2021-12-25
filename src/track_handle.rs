@@ -15,8 +15,8 @@ pub fn handle_track_result<'p, T>(res: TrackResult<T>) -> Result<T, PyErr> {
 }
 
 #[allow(dead_code)]
-#[derive(Clone)]
 #[pyclass(name = "PlayMode")]
+#[derive(Clone)]
 pub struct PyPlayMode {
     play_mode: PlayMode,
 }
@@ -49,8 +49,8 @@ impl PyPlayMode {
 }
 
 #[allow(dead_code)]
-#[derive(Clone)]
 #[pyclass(name = "LoopCount")]
+#[derive(Clone)]
 pub struct PyLoopState {
     #[pyo3(get, set)]
     loop_state: Option<usize>,
