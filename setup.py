@@ -17,7 +17,7 @@ setup(
     ],
     rust_extensions=[RustExtension("songbird.songbird", binding=Binding.PyO3, strip=Strip.All)],
     packages=["songbird"],
-    requirements=["yt-dlp"],
+    install_requires=["yt-dlp"],
     url="https://github.com/Lunarmagpie/Songbird-Py",
     project_urls={
         "GitHub": "https://github.com/Lunarmagpie/Songbird-Py",
