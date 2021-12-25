@@ -12,13 +12,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-        uses: actions-rs/toolchain@v1
+
+      - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
+
+      - uses: actions-rs/cargo@v1
 
       - name: Enter venv
         run: |
