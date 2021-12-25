@@ -38,7 +38,7 @@ extensions = [
     'sphinx_design',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    #'rtds_action'
+    'rtds_action'
 ]
 
 # The name of your GitHub repository
