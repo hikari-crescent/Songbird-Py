@@ -28,10 +28,10 @@ author = 'Lunarmagpie'
 # ones.
 import os
 import sys
+import importlib
 # /home/lunar/Documents/Projects/Python/Songbird.py/target/wheels/songbird_py-0.1.0-cp39-cp39-linux_x86_64.whl
 # sys.path.insert(0, os.path.abspath('../songbird'))
 sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../songbird'))
 
 
 extensions = [
