@@ -20,11 +20,11 @@ jobs:
           python -m pip install -r docs/requirements_dev.txt
 
       - name: Build with maturin
-        run:
+        run: |
           maturin develop
 
       - name: Build the docs
-        run:
+        run: |
           working-directory: docs
           make html
 
