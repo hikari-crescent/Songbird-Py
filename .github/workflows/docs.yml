@@ -28,7 +28,7 @@ jobs:
           python -m pip install -r requirements_dev.txt
 
       - name: Build the docs
-        run: |
+        run:
           working-directory: docs
           make html
 
