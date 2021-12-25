@@ -1,1 +1,1 @@
-from songbird.songbird import *
+from .songbird import *
