@@ -34,3 +34,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Docs
+_build/

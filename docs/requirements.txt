@@ -1,0 +1,3 @@
+furo
+sphinx-design
+sphinx-rtd-theme

@@ -9,6 +9,7 @@ use songbird::Config;
 
 use crate::utils::unwrap_f64_to_duration;
 
+/// Variants of the XSalsa20Poly1305 encryption scheme.
 #[pyclass(name = "CryptoMode")]
 pub struct PyCryptoMode {
     crypto_mode: CryptoMode,
@@ -24,19 +25,25 @@ impl PyCryptoMode {
 #[pymethods]
 impl PyCryptoMode {
     #[classattr]
+    /// The RTP header is used as the source of nonce bytes for the packet.
     fn Normal() -> Self {
         Self::from(CryptoMode::Normal)
     }
+    /// An additional random 24B suffix is used as the source of nonce bytes for the packet.
     #[classattr]
     fn Suffix() -> Self {
         Self::from(CryptoMode::Suffix)
     }
+    /// An additional random 4B suffix is used as the source of nonce bytes for the packet.
+    /// This nonce value increments by 1 with each packet.
     #[classattr]
     fn Lite() -> Self {
         Self::from(CryptoMode::Lite)
     }
 }
 
+
+// The retry strategy to use when waiting between retry attempts.
 #[pyclass(name = "Strategy")]
 pub struct PyStrategy {
     strategy: Strategy,
@@ -50,18 +57,25 @@ impl PyStrategy {
 
 #[pymethods]
 impl PyStrategy {
+    /// Wait an even amount of time between each retry.
     #[staticmethod]
     #[pyo3(text_signature = "(duration)")]
     fn every(duration: f64) -> Self {
         Self::from(Strategy::Every(Duration::from_secs_f64(duration)))
     }
 
+    /// Exponential backoff waiting strategy with default parameters.
     #[staticmethod]
     #[pyo3(text_signature = "()")]
     fn backoff_default() -> Self {
         Self::from(Strategy::Backoff(ExponentialBackoff::default()))
     }
 
+    /// Exponential backoff waiting strategy.
+    /// * `min` The minimum amount of time to wait between retries.
+    /// * `max` Maximum amount of time to wait between retries.
+    /// * `jitter` Random jitter applied to wait times. This is a percent.
+    /// I.e. 0.1 will add +/-10% to generated intervals.
     #[staticmethod]
     #[pyo3(text_signature = "(min, max, jitter)")]
     fn backoff(min: f64, max: f64, jitter: f32) -> Self {
@@ -74,6 +88,7 @@ impl PyStrategy {
 }
 
 #[pyclass(name = "DecodeMode")]
+/// The decode mode to use.
 pub struct PyDecodeMode {
     decode_mode: DecodeMode,
 }
@@ -87,20 +102,25 @@ impl PyDecodeMode {
 #[allow(non_snake_case)]
 #[pymethods]
 impl PyDecodeMode {
+    /// Packets received from Discord are handed over to events without any changes applied.
+    /// This breaks user speaking events.
     #[classattr]
     fn Pass() -> Self {
         Self::from(DecodeMode::Pass)
     }
+    /// Decrypts the body of each received packet.
     #[classattr]
     fn Decrypt() -> Self {
         Self::from(DecodeMode::Decrypt)
     }
+    /// Decrypts and decodes each received packet, correctly accounting for losses.
     #[classattr]
     fn Decode() -> Self {
         Self::from(DecodeMode::Decode)
     }
 }
 
+/// Configuration for the driver.
 #[pyclass(name = "Config")]
 #[pyo3(text_signature = "(/)")]
 pub struct PyConfig {

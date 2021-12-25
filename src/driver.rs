@@ -13,6 +13,24 @@ use crate::source::PySource;
 use crate::track::PyTrack;
 use crate::track_handle::PyTrackHandle;
 
+/// A connection to the Discord Voice gateway. The connection info must be from a
+/// different library as Songbird doesn't provide a regular Gateway connection.
+/// 
+/// .. code-block:: python
+/// 
+///     async def main():
+///         driver = await Driver.create()
+///         await driver.connect(
+///             token=token,
+///             endpoint=endpoint,
+///             session_id=session_id,
+///             guild_id=guild_id,
+///             channel_id=channel_id,
+///             user_id=user_id
+///         )
+///     
+///
+/// See more examples in the `example` directory.
 #[pyclass(name = "Driver")]
 pub struct PyDriver {
     driver: Arc<Mutex<Driver>>,
@@ -20,40 +38,49 @@ pub struct PyDriver {
 
 #[pymethods]
 impl PyDriver {
+    /// This can not create a Driver so it is raises an exception.
     #[new]
     fn new() -> PyResult<Self> {
-        //! This can not create a Driver so it is raises an exception.
         Err(UseAsyncConstructorError::new_err(
             "`await Driver.create()` should be used to construct this class.",
         ))
     }
 
+    /// Creates a driver for this class.
+    /// Drivers must be created in an event loop so it has to be done like this.
+    ///
+    /// .. code-block:: python
+    /// 
+    ///     from songbird import Driver
+    ///     ...
+    ///
+    ///     driver = await Driver.create()
+    /// 
     #[staticmethod]
     #[args(config = "None")]
     fn create<'p>(py: Python<'p>, config: Option<&PyConfig>) -> PyResult<&'p PyAny> {
-        //! Creates a driver for this class.
-        //! Drivers must be created in an event loop so it has to be done like this.
-        //!
-        //! ```python
-        //! from songbird import Driver
-        //! ...
-        //!
-        //! driver = await Driver.create()
-        //! ```
-
         let config: Config = match config {
             Some(py_config) => py_config.config.clone(),
             None => Config::default(),
         };
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            // Make the config object
             Ok(PyDriver {
                 driver: Arc::new(Mutex::new(Driver::new(config))),
             })
         })
     }
 
+    /// Connect to a voice channel
+    /// Note: url can start with `wss://` or no protocol.
+    ///
+    /// Args:
+    ///     token: Token recieved from the Discord gateway. This is not your bot token.
+    ///     endpoint: Endpoint recieved from Discord gateway.
+    ///     session_id: Session id recieved from Discord gateway.
+    ///     guild_id: Guild id you want to connct to.
+    ///     channel_id: Channel id you want to connect to.
+    ///     user_id: User id of the current user.
     fn connect<'p>(
         &'p self,
         py: Python<'p>,
@@ -64,16 +91,6 @@ impl PyDriver {
         channel_id: u64,
         user_id: u64,
     ) -> PyResult<&'p PyAny> {
-        //! Connect to a voice channel
-        //! Note: url can start with `wss://` or no protocol.
-        //!
-        //! #Arguments
-        //! * `token` - Token recieved from the Discord gateway. This is not your bot token.
-        //! * `endpoint` - Endpoint recieved from Discord gateway.
-        //! * `session_id` - Session id recieved from Discord gateway.
-        //! * `guild_id` - Guild id you want to connct to.
-        //! * `channel_id` - Channel id you want to connect to.
-        //! * `user_id` - User id of the current user.
         let driver = self.driver.clone();
 
         let endpoint = endpoint.replace("wss://", "");
@@ -99,9 +116,9 @@ impl PyDriver {
         })
     }
 
+    /// Disables the driver.
+    /// This does not update your voice state to remove you from the voice channel.
     fn leave<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
-        //! Disables the driver.
-        //! This does not update your voice state to remove you from the voice channel.
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -110,8 +127,8 @@ impl PyDriver {
         })
     }
 
+    /// Mutes the driver.
     fn mute<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
-        //! Mutes the driver.
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -120,8 +137,8 @@ impl PyDriver {
         })
     }
 
+    /// Unmutes the driver.
     fn unmute<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
-        //! Unmutes the driver.
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -130,17 +147,17 @@ impl PyDriver {
         })
     }
 
+    /// Returns whether the driver is muted.
     fn is_muted<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
-        //! Returns whether the driver is muted.
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move { Ok(driver.lock().await.is_mute()) })
     }
 
+    /// Plays a Playable object.
+    /// Playable are activated when you try to play them. That means all errors are
+    /// thrown in this method.
     fn play_source<'p>(&'p self, py: Python<'p>, source: &'p PySource) -> PyResult<&'p PyAny> {
-        //! Plays a Playable object.
-        //! Playable are activated when you try to play them. That means all errors are
-        //! thrown in this method.
         let driver = self.driver.clone();
         let source = source.source.clone();
 
@@ -155,8 +172,8 @@ impl PyDriver {
         })
     }
 
+    /// Same as `play_source` but stops all other sources from playing.
     fn play_only_source<'p>(&'p self, py: Python<'p>, source: &'p PySource) -> PyResult<&'p PyAny> {
-        //! Same as `play_source` but stops all other sources from playing.
         let driver = self.driver.clone();
         let source = source.source.clone();
 
@@ -171,8 +188,8 @@ impl PyDriver {
         })
     }
 
+    /// Same as `play` but stops all other sources from playing.
     fn play<'p>(&'p self, py: Python<'p>, track: &'p PyTrack) -> PyResult<&'p PyAny> {
-        //! Same as `play` but stops all other sources from playing.
         let driver = self.driver.clone();
         let track = track.track.clone();
 
@@ -186,8 +203,8 @@ impl PyDriver {
         })
     }
 
+    /// Same as `play` but stops all other sources from playing.
     fn play_only<'p>(&'p self, py: Python<'p>, track: &'p PyTrack) -> PyResult<&'p PyAny> {
-        //! Same as `play` but stops all other sources from playing.
         let driver = self.driver.clone();
         let track = track.track.clone();
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -200,8 +217,8 @@ impl PyDriver {
         })
     }
 
+    /// Sets the bitrate to a i32
     fn set_bitrate<'p>(&'p self, py: Python<'p>, bitrate: i32) -> PyResult<&'p PyAny> {
-        //! Sets the bitrate to a i32
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -212,8 +229,8 @@ impl PyDriver {
         })
     }
 
+    /// Sets the bitrate to a Bitrate::Max
     fn set_bitrate_to_max<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
-        //! Sets the bitrate to a Bitrate::Max
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -221,8 +238,8 @@ impl PyDriver {
         })
     }
 
+    /// Sets the bitrate to Bitrate::Auto
     fn set_bitrate_to_auto<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
-        //! Sets the bitrate to Bitrate::Auto
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
@@ -230,15 +247,15 @@ impl PyDriver {
         })
     }
 
+    /// Stops playing audio from all sources.
     fn stop<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
-        //! Stops playing audio from all sources.
         let driver = self.driver.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move { Ok(driver.lock().await.stop()) })
     }
 
+    /// Set the config for this Driver
     fn set_config<'p>(&'p self, py: Python<'p>, config: &PyConfig) -> PyResult<&'p PyAny> {
-        //! Set the config for this Driver
         let driver = self.driver.clone();
         let config = config.config.clone();
 

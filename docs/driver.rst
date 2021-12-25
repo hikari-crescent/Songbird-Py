@@ -1,0 +1,3 @@
+.. currentmodule:: songbird
+
+.. autoclass:: Driver
