@@ -16,7 +16,7 @@ build:
   extras:
     - rust==1.46
   tools:
-    - python: "3.9"
+    python: "3.9"
   apt_packages:
     - libopus-dev
 
