@@ -13,24 +13,19 @@ jobs:
         with:
           python-version: 3.8
 
-      # - name: Install libopus
-      #   run: sudo apt install libopus-dev
+      - name: Install libopus
+        run: sudo apt -y install libopus-dev
 
-      # - uses: messense/maturin-action@v1
-      #   with:
-      #     maturin-version: latest
-      #     command: build
+      - uses: messense/maturin-action@v1
+        with:
+          maturin-version: latest
+          command: build
 
       - name: Install doc dependencies
         run: |
           python -m pip install -U pip
           python -m pip install -r docs/requirements.txt
           python -m pip install -r requirements_dev.txt
-
-      # - name: Build the docs
-      #   working-directory: docs
-      #   run: |
-      #     make html
 
       - uses: actions/upload-artifact@v2
         with:
