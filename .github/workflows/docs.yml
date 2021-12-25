@@ -38,8 +38,8 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: docs-for-${{ github.sha }}
-          path: docs
+          name: so-for-${{ github.sha }}
+          path: songbird
 
       - name: Trigger RTDs build
         uses: dfm/rtds-action@v1

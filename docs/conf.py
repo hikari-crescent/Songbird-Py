@@ -28,8 +28,10 @@ author = 'Lunarmagpie'
 # ones.
 import os
 import sys
+# /home/lunar/Documents/Projects/Python/Songbird.py/target/wheels/songbird_py-0.1.0-cp39-cp39-linux_x86_64.whl
 # sys.path.insert(0, os.path.abspath('../songbird'))
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../songbird'))
 
 
 extensions = [
@@ -46,9 +48,9 @@ rtds_action_github_repo = "Lunarmagpie/Songbird-Py"
 # Note: this is relative to the conf.py file!
 rtds_action_path = "../songbird"
 
-rtds_action_artifact_prefix = "notebooks-for-"
+rtds_action_artifact_prefix = "so-for-"
 
-rtds_action_github_token = os.environ["GIT-TOKEN"]
+rtds_action_github_token = os.environ.get("GIT_TOKEN", "")
 
 # The "prefix" used in the `upload-artifact` step of the ac
 autodoc_default_options = {
