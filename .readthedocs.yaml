@@ -6,7 +6,7 @@ python:
   install:
     - requirements: docs/requirements.txt
     - requirements: requirements.txt
-    - method: pip
+    - method: setuptools
       path: .
   system_packages: true
 
@@ -17,3 +17,6 @@ build:
     rust: "1.55"
   apt_packages:
     - libopus-dev
+
+sphinx:
+   configuration: docs/conf.py
