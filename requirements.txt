@@ -1,2 +1,2 @@
 yt-dlp==2021.12.1
-hikari
+hikari==2.0.0.dev104
