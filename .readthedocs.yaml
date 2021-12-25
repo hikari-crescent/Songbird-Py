@@ -1,0 +1,22 @@
+version: 2
+
+formats: []
+
+python:
+  install:
+    - requirements: docs/requirements.txt
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+    - method: setuptools
+      path: package
+  system_packages: true
+
+build:
+  os: ubuntu-20.04
+  tools:
+    python: "3.9"
+    rust: "1.58"
+  apt_packages:
+    - libopus-dev
