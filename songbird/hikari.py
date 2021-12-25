@@ -5,7 +5,7 @@ from typing import Callable, Awaitable, Any
 from hikari import snowflakes, VoiceEvent
 from hikari.api import VoiceComponent, VoiceConnection
 
-from songbird import Driver, Source, Config
+from songbird import Driver, Source, Config, TrackHandle, Track
 
 
 class Voicebox(VoiceConnection):
@@ -83,5 +83,41 @@ class Voicebox(VoiceConnection):
     async def notify(self, event: VoiceEvent) -> None:
         """Submit an event to the voice connection to be processed."""
 
-    async def play_source(self, source: Source):
-        return await self.driver.play_source(source)
+    async def leave(self) -> None:
+        await self.driver.leave()
+
+    async def mute(self) -> None:
+        await self.driver.mute()
+
+    async def unmute(self) -> None:
+        await self.driver.unmute()
+
+    async def is_muted(self) -> bool:
+        await self.driver.is_muted()
+
+    async def play_source(self, source: Source) -> TrackHandle:
+        await self.driver.play_source(source)
+
+    async def play_only_source(self, source: Track) -> TrackHandle:
+        await self.driver.play_only_source(source)
+
+    async def play(self, track: Track) -> None:
+        await self.driver.play(track)
+
+    async def play_only(self, track: Track) -> None:
+        await self.driver.play_only(track)
+
+    async def set_bitrate(self, bitrate: int) -> None:
+        await self.driver.set_bitrate(bitrate)
+
+    async def set_bitrate_to_max(self) -> None:
+        await self.driver.set_bitrate_to_max()
+
+    async def set_bitrate_to_auto(self) -> None:
+        await self.driver.set_bitrate_to_auto()
+
+    async def stop(self) -> None:
+        await self.driver.stop()
+
+    async def set_config(self, config: Config) -> None:
+        await self.driver.set_config(config)
