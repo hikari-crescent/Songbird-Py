@@ -7,7 +7,7 @@ use songbird::driver::{
 };
 use songbird::Config;
 
-use crate::utils::unwrap_f64_to_duration;
+use crate::utils::{unwrap_duration, unwrap_f64_to_duration};
 
 /// Variants of the XSalsa20Poly1305 encryption scheme.
 #[pyclass(name = "CryptoMode")]
@@ -41,7 +41,6 @@ impl PyCryptoMode {
         Self::from(CryptoMode::Lite)
     }
 }
-
 
 // The retry strategy to use when waiting between retry attempts.
 #[pyclass(name = "Strategy")]
@@ -120,7 +119,9 @@ impl PyDecodeMode {
     }
 }
 
-/// Configuration for the driver.
+/// Config objects are how you set a driver's configuration.
+/// .. note::
+///     Changes in a Config object are only passed to the ``Driver`` with the ``set_config`` method.
 #[pyclass(name = "Config")]
 #[pyo3(text_signature = "(/)")]
 pub struct PyConfig {
@@ -136,30 +137,63 @@ impl PyConfig {
         }
     }
 
-    #[pyo3(text_signature = "($self, crypto_mode: CryptoMode)")]
-    fn set_crypto_mode(&mut self, crypto_mode: &PyCryptoMode) {
+    #[getter]
+    fn get_crypto_mode(&self) -> PyCryptoMode {
         let config = self.config.clone();
-        self.config = config.crypto_mode(crypto_mode.crypto_mode)
+        PyCryptoMode::from(config.crypto_mode)
     }
 
-    #[pyo3(text_signature = "($self, decode_mode: DecodeMode)")]
+    /// Sets the crypto_mode for this config object.
+    fn set_crypto_mode(&mut self, crypto_mode: &PyCryptoMode) {
+        let config = self.config.clone();
+        self.config = config.crypto_mode(crypto_mode.crypto_mode);
+    }
+
+    #[getter]
+    fn get_decode_mode(&self) -> PyDecodeMode {
+        let config = self.config.clone();
+        PyDecodeMode::from(config.decode_mode)
+    }
+
+    /// Sets the decode_mode for this config object. This is the encryping and
+    /// decrypting behavior.
     fn set_decode_mode(&mut self, decode_mode: &PyDecodeMode) {
         let config = self.config.clone();
         self.config = config.decode_mode(decode_mode.decode_mode)
     }
 
-    #[pyo3(text_signature = "($self, preallocated_tracks: int)")]
+    #[getter]
+    fn get_preallocated_tracks(&self) -> usize {
+        self.config.preallocated_tracks
+    }
+
+    /// Sets the preallocated_tracks for this config object.
     fn set_preallocated_tracks(&mut self, preallocated_tracks: usize) {
         let config = self.config.clone();
         self.config = config.preallocated_tracks(preallocated_tracks)
     }
 
-    #[pyo3(text_signature = "($self, driver_timeout: Optional[float])")]
+    #[getter]
+    fn get_driver_timeout(&self) -> Option<f64> {
+        unwrap_duration(self.config.driver_timeout)
+    }
+
+    /// Sets the driver_timeout for this config object.
     fn set_driver_timeout(&mut self, driver_timeout: Option<f64>) {
         let config = self.config.clone();
         self.config = config.driver_timeout(unwrap_f64_to_duration(driver_timeout))
     }
 
+    #[getter]
+    fn retry_strategy(&self) -> PyStrategy {
+        PyStrategy::from(self.config.driver_retry.strategy)
+    }
+    #[getter]
+    fn retry_limit(&self) -> Option<usize> {
+        self.config.driver_retry.retry_limit
+    }
+
+    /// Sets the driver_retry for this config_object.
     #[pyo3(text_signature = "($self, driver_retry: Optional[int])")]
     fn set_driver_retry(&mut self, strategy: &PyStrategy, retry_limit: Option<usize>) {
         let config = self.config.clone();
@@ -169,6 +203,12 @@ impl PyConfig {
         })
     }
 
+    #[getter]
+    fn get_gateway_timeout(&self) -> Option<f64> {
+        unwrap_duration(self.config.gateway_timeout)
+    }
+
+    /// Sets the timeout for joining a voice channel.
     #[pyo3(text_signature = "($self, crypto_mode: Optional[float])")]
     fn set_gateway_timeout(&mut self, gateway_timeout: Option<f64>) {
         let config = self.config.clone();
