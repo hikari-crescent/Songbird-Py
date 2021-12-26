@@ -1,7 +1,7 @@
 from asyncio import sleep
 
 import hikari
-from songbird import Source
+from songbird import ytdl
 from songbird.hikari import Voicebox
 
 
@@ -17,7 +17,7 @@ async def ping(event: hikari.ShardReadyEvent) -> None:
         voice_connection_type=Voicebox
     )
 
-    track_handle = await voice.play_source(Source.ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
+    track_handle = await voice.play_source(ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
 
     await sleep(5)
     # Doesn't need to be awaited!
