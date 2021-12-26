@@ -5,10 +5,11 @@ setup(
     name="songbird-py",
     author="Lunarmagpie",
     description="A Discord voice library using Python Songbird bindings.",
+    long_description=open("README.md").read(),
     data_files=[
         "songbird/__init__.pyi"
     ],
-    version="0.0.1",
+    version="0.0.2",
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Rust",

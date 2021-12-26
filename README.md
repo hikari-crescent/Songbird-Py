@@ -1,5 +1,47 @@
 # Songbird-Py
-Songbird bindings for python
+Songbird bindings for python. The goal is to provide an easy to use alternitive to Lavalink.
+Its written with rust-bindings to [Songbird](https://github.com/serenity-rs/songbird).
+
+### Playing a Song
+Once you are connected to a channel, playing music is extremely easy.
+
+```python
+from songbird import ytdl
+
+# `voice` was created from a connection to the gateway.
+
+track_handle = await voice.play_source(ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
+
+await sleep(5)
+# Doesn't need to be awaited!
+track_handle.pause()
+await sleep(5)
+track_handle.play()
+```
+
+### Supported Libraries
+Hikari is currently the only supported library. See the examples directory for more information.
+
+### Using with your own Gateway
+```python
+from asyncio import run
+from songbird import Driver
+
+async def main():
+    voice = await Driver.create()
+    # `server` is the server payload from the gateway.
+    # `state` is the voice state payload from the gateway.
+    await voice.connect(
+        token=server.token,
+        endpoint=server.endpoint,
+        session_id=state.session_id,
+        guild_id=server.guild_id,
+        channel_id=state.channel_id,
+        user_id=state.user_id
+    )
+
+run(main())
+```
 
 # Contributing
 Pyo3 asyncio is used with tokio.
