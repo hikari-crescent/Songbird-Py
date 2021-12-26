@@ -59,7 +59,7 @@ impl PyStrategy {
 impl PyStrategy {
     /// Wait an even amount of time between each retry.
     #[staticmethod]
-    #[pyo3(text_signature = "(duration)")]
+    #[pyo3(text_signature = "(duration: float)")]
     fn every(duration: f64) -> Self {
         Self::from(Strategy::Every(Duration::from_secs_f64(duration)))
     }
@@ -77,7 +77,7 @@ impl PyStrategy {
     /// * `jitter` Random jitter applied to wait times. This is a percent.
     /// I.e. 0.1 will add +/-10% to generated intervals.
     #[staticmethod]
-    #[pyo3(text_signature = "(min, max, jitter)")]
+    #[pyo3(text_signature = "(min: float, max: float, jitter: float)")]
     fn backoff(min: f64, max: f64, jitter: f32) -> Self {
         Self::from(Strategy::Backoff(ExponentialBackoff {
             min: Duration::from_secs_f64(min),
@@ -136,31 +136,31 @@ impl PyConfig {
         }
     }
 
-    #[pyo3(text_signature = "($self, crypto_mode)")]
+    #[pyo3(text_signature = "($self, crypto_mode: CryptoMode)")]
     fn set_crypto_mode(&mut self, crypto_mode: &PyCryptoMode) {
         let config = self.config.clone();
         self.config = config.crypto_mode(crypto_mode.crypto_mode)
     }
 
-    #[pyo3(text_signature = "($self, decode_mode)")]
+    #[pyo3(text_signature = "($self, decode_mode: DecodeMode)")]
     fn set_decode_mode(&mut self, decode_mode: &PyDecodeMode) {
         let config = self.config.clone();
         self.config = config.decode_mode(decode_mode.decode_mode)
     }
 
-    #[pyo3(text_signature = "($self, preallocated_tracks)")]
+    #[pyo3(text_signature = "($self, preallocated_tracks: int)")]
     fn set_preallocated_tracks(&mut self, preallocated_tracks: usize) {
         let config = self.config.clone();
         self.config = config.preallocated_tracks(preallocated_tracks)
     }
 
-    #[pyo3(text_signature = "($self, driver_timeout)")]
+    #[pyo3(text_signature = "($self, driver_timeout: Optional[float])")]
     fn set_driver_timeout(&mut self, driver_timeout: Option<f64>) {
         let config = self.config.clone();
         self.config = config.driver_timeout(unwrap_f64_to_duration(driver_timeout))
     }
 
-    #[pyo3(text_signature = "($self, driver_retry)")]
+    #[pyo3(text_signature = "($self, driver_retry: Optional[int])")]
     fn set_driver_retry(&mut self, strategy: &PyStrategy, retry_limit: Option<usize>) {
         let config = self.config.clone();
         self.config = config.driver_retry(Retry {
@@ -169,7 +169,7 @@ impl PyConfig {
         })
     }
 
-    #[pyo3(text_signature = "($self, crypto_mode)")]
+    #[pyo3(text_signature = "($self, crypto_mode: Optional[float])")]
     fn set_gateway_timeout(&mut self, gateway_timeout: Option<f64>) {
         let config = self.config.clone();
         self.config = config.gateway_timeout(unwrap_f64_to_duration(gateway_timeout))

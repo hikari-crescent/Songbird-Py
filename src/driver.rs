@@ -15,9 +15,9 @@ use crate::track_handle::PyTrackHandle;
 
 /// A connection to the Discord Voice gateway. The connection info must be from a
 /// different library as Songbird doesn't provide a regular Gateway connection.
-/// 
+///
 /// .. code-block:: python
-/// 
+///
 ///     async def main():
 ///         driver = await Driver.create()
 ///         await driver.connect(
@@ -50,14 +50,15 @@ impl PyDriver {
     /// Drivers must be created in an event loop so it has to be done like this.
     ///
     /// .. code-block:: python
-    /// 
+    ///
     ///     from songbird import Driver
     ///     ...
     ///
     ///     driver = await Driver.create()
-    /// 
+    ///
     #[staticmethod]
     #[args(config = "None")]
+    #[pyo3(text_signature = "(config: Optional[Config]) -> 'None'")]
     fn create<'p>(py: Python<'p>, config: Option<&PyConfig>) -> PyResult<&'p PyAny> {
         let config: Config = match config {
             Some(py_config) => py_config.config.clone(),
@@ -81,6 +82,9 @@ impl PyDriver {
     ///     guild_id: Guild id you want to connct to.
     ///     channel_id: Channel id you want to connect to.
     ///     user_id: User id of the current user.
+    #[pyo3(
+        text_signature = "($self, token: str, endpoint: str, session_id: str, guild_id: int, channel_id: int, user_id: int)"
+    )]
     fn connect<'p>(
         &'p self,
         py: Python<'p>,
@@ -118,6 +122,7 @@ impl PyDriver {
 
     /// Disables the driver.
     /// This does not update your voice state to remove you from the voice channel.
+    #[pyo3(text_signature = "()")]
     fn leave<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
 
@@ -128,6 +133,7 @@ impl PyDriver {
     }
 
     /// Mutes the driver.
+    #[pyo3(text_signature = "()")]
     fn mute<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
 
@@ -138,6 +144,7 @@ impl PyDriver {
     }
 
     /// Unmutes the driver.
+    #[pyo3(text_signature = "()")]
     fn unmute<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
 
@@ -148,6 +155,7 @@ impl PyDriver {
     }
 
     /// Returns whether the driver is muted.
+    #[pyo3(text_signature = "()")]
     fn is_muted<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
 
@@ -195,10 +203,8 @@ impl PyDriver {
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let mut inner = track.lock().await;
-            let mut empty = None;
-            mem::swap(&mut *inner, &mut empty);
-
-            driver.lock().await.play(empty.unwrap());
+            let old = mem::take(&mut *inner);
+            driver.lock().await.play(old.unwrap());
             Ok(())
         })
     }
@@ -209,10 +215,8 @@ impl PyDriver {
         let track = track.track.clone();
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let mut inner = track.lock().await;
-            let mut empty = None;
-            mem::swap(&mut *inner, &mut empty);
-
-            driver.lock().await.play_only(empty.unwrap());
+            let old = mem::take(&mut *inner);
+            driver.lock().await.play_only(old.unwrap());
             Ok(())
         })
     }

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional, Tuple
 
 class SongbirdError(Exception): ...
@@ -111,7 +113,8 @@ class Metadata:
     title: Optional[str]
     thumbnail: Optional[str]
 
-LoopCount = Optional[int]
+class LoopCount:
+    loop_state: Optional[int]
 
 async def create_player(source: Source) -> Tuple[Track, TrackHandle]: ...
 

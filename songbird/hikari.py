@@ -9,6 +9,8 @@ from songbird import Driver, Source, Config, TrackHandle, Track
 
 
 class Voicebox(VoiceConnection):
+    """Hikari VoiceConnection using Songbird"""
+
     def __init__(self, driver: Driver) -> None:
         self.driver = driver
 
