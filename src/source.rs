@@ -66,36 +66,38 @@ impl PySource {
 
 #[pymethods]
 impl PySource {
+    /// Use youtube dl to play a video from a URL
+    ///
+    /// # Example
+    /// .. code-block:: python
+    /// 
+    ///     await driver.play(Source.ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw"))
     #[staticmethod]
     fn ytdl<'p>(url: String) -> PyResult<Self> {
-        //! Use youtube dl to play a video from a URL
-        //!
-        //! # Example
-        //! ```python
-        //! await driver.play(Playable.ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw"))
-        //! ```
         Ok(Self::new(PlayableType::Ytdl(url)))
     }
 
+    /// Create a source from bytes. The bytes are copied when the driver plays them so this can
+    /// be quite inefficient.
     #[staticmethod]
     fn bytes<'p>(bytes: Vec<u8>, stereo: bool) -> PyResult<Self> {
         Ok(Self::new(PlayableType::Bytes(bytes, stereo)))
     }
 
+    /// This plays the bytes from the file, DO NOT use for mp3s, etc
+    /// ffmpeg should be used instead.
     #[staticmethod]
     fn file<'p>(filepath: String, stereo: bool) -> PyResult<Self> {
-        //! This plays the bytes from the file, DO NOT use for mp3s, etc
-        //! ffmpeg should be used instead.
         Ok(Self::new(PlayableType::File(filepath, stereo)))
     }
 
+    /// Function used to play most audio formats
+    /// 
+    /// .. code-block:: python
+    /// 
+    ///     await driver.play(Source.ffmpeg("song.mp3"))
     #[staticmethod]
     fn ffmpeg<'p>(filepath: String) -> PyResult<Self> {
-        //! Function used to play most audio formats
-        //!
-        //! # Example
-        //! ```python
-        //! await driver.play(Playable.ffmpeg("song.mp3"))
         Ok(Self::new(PlayableType::Ffmpeg(filepath)))
     }
 }

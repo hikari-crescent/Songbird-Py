@@ -10,6 +10,8 @@ use crate::track_handle::{
     handle_track_result, PyLoopState, PyPlayMode, PyTrackHandle, PyTrackState,
 };
 
+/// Creates a ``Track`` and ``TrackHandle`` object. The track is used to play the ``Track`` and the TrackHandle
+/// can be used to control it after it starts playing.
 #[pyfunction]
 #[pyo3(name = "create_player")]
 pub fn py_create_player<'p>(py: Python<'p>, source: &'p PySource) -> PyResult<&'p PyAny> {
@@ -34,6 +36,8 @@ pub(crate) fn register(py: Python, m: &PyModule) -> PyResult<()> {
     Ok(())
 }
 
+/// A Track. This is similar to a `Source` but you can control audio before its played.
+/// This object should only be created through the ``create_player`` method.
 #[pyclass(name = "Track")]
 pub struct PyTrack {
     pub track: Arc<Mutex<Option<Track>>>,
@@ -41,6 +45,7 @@ pub struct PyTrack {
 
 #[pymethods(name = "Track")]
 impl PyTrack {
+    // Play the track.
     #[pyo3(text_signature = "($self)")]
     fn play<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -49,6 +54,7 @@ impl PyTrack {
             Ok(())
         })
     }
+    // Pause the track.
     #[pyo3(text_signature = "($self)")]
     fn pause<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -57,6 +63,9 @@ impl PyTrack {
             Ok(())
         })
     }
+
+    ///Manually stops a track.
+    ///Stopped/ended tracks cannot be restarted.
     #[pyo3(text_signature = "($self)")]
     fn stop<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -65,6 +74,8 @@ impl PyTrack {
             Ok(())
         })
     }
+
+    /// Returns :data:`True` if the track is playing.
     #[pyo3(text_signature = "($self)")]
     fn playing<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -73,6 +84,7 @@ impl PyTrack {
             Ok(PyPlayMode::from(play_mode))
         })
     }
+    /// Returns the volume of the track.
     #[pyo3(text_signature = "($self)")]
     fn volume<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -80,6 +92,7 @@ impl PyTrack {
             Ok(track.lock().await.as_mut().unwrap().volume())
         })
     }
+    /// Sets the volume of the track.
     #[pyo3(text_signature = "($self, volume)")]
     fn set_volume<'p>(&'p mut self, py: Python<'p>, volume: f32) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -88,6 +101,7 @@ impl PyTrack {
             Ok(())
         })
     }
+    /// Returns the position of the track.
     #[pyo3(text_signature = "($self)")]
     fn position<'p>(&mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -101,6 +115,7 @@ impl PyTrack {
                 .as_secs_f64())
         })
     }
+    /// Returns how long the track has been playing for.
     #[pyo3(text_signature = "($self)")]
     fn play_time<'p>(&mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -114,6 +129,7 @@ impl PyTrack {
                 .as_secs_f64())
         })
     }
+    /// Sets the loop count. If `loops` is None, it will loop forever.
     #[pyo3(text_signature = "($self, loops)")]
     fn set_loop_count<'p>(&mut self, py: Python<'p>, loops: Option<usize>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -129,6 +145,8 @@ impl PyTrack {
             )
         })
     }
+    /// Ready a track for playing if it is lazily initialised.
+    /// This won't matter until ``Restartable`` is implemented.
     #[pyo3(text_signature = "($self)")]
     fn make_playable<'p>(&mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -137,6 +155,7 @@ impl PyTrack {
             Ok(())
         })
     }
+    /// Returns a copy of the track's state.
     #[pyo3(text_signature = "($self)")]
     fn state<'p>(&mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -146,6 +165,7 @@ impl PyTrack {
             ))
         })
     }
+    /// Seek to a specific point in the track.
     #[pyo3(text_signature = "($self)")]
     fn seek_time<'p>(&mut self, py: Python<'p>, position: f64) -> PyResult<&'p PyAny> {
         let track = self.track.clone();
@@ -163,6 +183,7 @@ impl PyTrack {
             }
         })
     }
+    ///Returns the track's UUID.
     #[pyo3(text_signature = "($self)")]
     fn uuid<'p>(&'p mut self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track = self.track.clone();

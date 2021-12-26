@@ -21,6 +21,7 @@ pub struct PyPlayMode {
     play_mode: PlayMode,
 }
 
+/// The current state of the track. ie. Paused/Unpaused.
 impl PyPlayMode {
     pub fn from(play_mode: PlayMode) -> Self {
         Self { play_mode }
@@ -77,6 +78,7 @@ impl PyLoopState {
     }
 }
 
+/// The state of the track.
 #[pyclass(name = "TrackState")]
 pub struct PyTrackState {
     #[pyo3(get, set)]
@@ -103,6 +105,29 @@ impl PyTrackState {
     }
 }
 
+
+/// The metadata for a track
+/// 
+/// Attributes
+/// ----------
+/// track
+///     The track of this stream.
+/// artist
+///     The main artist of the track.
+/// data
+///     The date of creation of the stream.
+/// channels
+///     The number of audio channels in the track. Any number >= 2 is treated as stereo.
+/// channel
+///     The youtube channel for the track.
+/// start_time
+///     The time at which playback was started.
+/// source_url
+///     The source url of the stream.
+/// title
+///     The YouTube title of the track.
+/// thumbnail
+///     The thumbnail url of this stream.
 #[pyclass(name = "Metadata")]
 pub struct PyMetadata {
     #[pyo3(get)]
@@ -134,6 +159,7 @@ pub struct PyTrackHandle {
     track_handle: Arc<TrackHandle>,
 }
 
+/// Used to control a track that is already playing. None of the methods are async.
 impl PyTrackHandle {
     pub fn from(track_handle: TrackHandle) -> Self {
         Self {
@@ -144,22 +170,28 @@ impl PyTrackHandle {
 
 #[pymethods]
 impl PyTrackHandle {
+    /// Stops the track from playing.
     #[pyo3(text_signature = "($self)")]
     fn play(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.play())
     }
+    /// Unpauses the track.
     #[pyo3(text_signature = "($self)")]
     fn pause(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.pause())
     }
+    /// Stops the track. A track stopped with Stop cannot be restarted.
     #[pyo3(text_signature = "($self)")]
     fn stop(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.pause())
     }
+    /// Sets the volume of the track.
     #[pyo3(text_signature = "($self, volume)")]
     fn set_volume(&self, volume: f32) -> PyResult<()> {
         handle_track_result(self.track_handle.set_volume(volume))
     }
+    /// Makes a lazily initialized track playable. This does not matter to the current
+    /// functionality of the lib because ``Restartable`` is not implemented.
     #[pyo3(text_signature = "($self)")]
     fn make_playable(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.make_playable())
@@ -168,6 +200,7 @@ impl PyTrackHandle {
     fn is_seekable(&self) -> bool {
         self.track_handle.is_seekable()
     }
+    /// Seeks to a specific time in the track.
     #[pyo3(text_signature = "($self)")]
     fn seek_time(&self, position: f64) -> PyResult<()> {
         handle_track_result(
@@ -175,6 +208,7 @@ impl PyTrackHandle {
                 .seek_time(Duration::from_secs_f64(position)),
         )
     }
+    /// Gets the `TrackState` for a track.
     #[pyo3(text_signature = "($self)")]
     fn get_info<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
         let track_handle = self.track_handle.clone();
@@ -184,14 +218,17 @@ impl PyTrackHandle {
             Ok(PyTrackState::from(track_state))
         })
     }
+    /// Enables looping.
     #[pyo3(text_signature = "($self)")]
     fn enable_loop(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.enable_loop())
     }
+    /// Disables looping.
     #[pyo3(text_signature = "($self)")]
     fn disable_loop(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.disable_loop())
     }
+    /// Loops for a certain amount of times.
     #[pyo3(text_signature = "($self, count)")]
     fn loop_for(&self, count: usize) -> PyResult<()> {
         handle_track_result(self.track_handle.loop_for(count))

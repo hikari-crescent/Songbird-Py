@@ -23,5 +23,5 @@ Indices and tables
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   hikari
    songbird

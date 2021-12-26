@@ -1,3 +1,5 @@
+"""I use Arch btw so this module exists to remove bloat"""
+
 from .songbird import Source
 
 def ffmpeg(filepath: str) -> Source:
