@@ -36,8 +36,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_design',
     'docstrings',
-    'autotypehint',
-    'type_comment'
+    'autotypehint'
 ]
 
 # The "prefix" used in the `upload-artifact` step of the ac

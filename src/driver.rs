@@ -196,7 +196,7 @@ impl PyDriver {
         })
     }
 
-    /// Same as `play` but stops all other sources from playing.
+    /// Plays a Track object. This makes the Track object unuseable.
     fn play<'p>(&'p self, py: Python<'p>, track: &'p PyTrack) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
         let track = track.track.clone();
