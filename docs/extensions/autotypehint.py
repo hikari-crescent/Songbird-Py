@@ -51,7 +51,6 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                      options: Dict, args: str, retann: str) -> None:
     """Record type hints to env object."""
     try:
-        print(obj)
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
             annotation = annotations.setdefault(name, OrderedDict())
@@ -60,6 +59,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
             if obj_in_pyi:
                 obj = obj_in_pyi
 
+            print(obj)
             type_hints = get_type_hints(obj)
 
             for param, hint in type_hints.items():
@@ -67,6 +67,9 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                     annotation[param] = typing.stringify(hint)
 
     except (TypeError, ValueError) as e:
+        pass
+    except Exception:
+        # I have no idea how this fixes "Optional is undefined" but it does
         pass
 
 

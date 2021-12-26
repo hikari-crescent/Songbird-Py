@@ -6,6 +6,7 @@ setup(
     author="Lunarmagpie",
     description="A Discord voice library using Python Songbird bindings.",
     long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     data_files=[
         "songbird/__init__.pyi"
     ],
