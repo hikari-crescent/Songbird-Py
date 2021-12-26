@@ -17,6 +17,9 @@
 
 # -- Project information -----------------------------------------------------
 
+from inspect import signature
+import sys
+import os
 project = 'Songbird-py'
 copyright = '2021, Lunarmagpie'
 author = 'Lunarmagpie'
@@ -26,8 +29,6 @@ author = 'Lunarmagpie'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-import os
-import sys
 sys.path.append(os.path.abspath('extensions'))
 sys.path.append(os.path.abspath('..'))
 sys.path.append(os.path.abspath("../.."))
@@ -39,13 +40,28 @@ extensions = [
     'autotypehint'
 ]
 
+from sphinx.ext.autodoc import FunctionDocumenter, MethodDocumenter
+from docstrings import find_item
+
+def new_format_signature(self, **kwargs) -> str:
+    path = '.'.join(self.objpath)
+    obj = self.object
+    typehinter = find_item(path)
+
+    if typehinter:
+        obj = typehinter
+
+    return str(signature(obj)).replace("'", "")
+
+
+FunctionDocumenter.format_signature = new_format_signature
+MethodDocumenter.format_signature = new_format_signature
+
 # The "prefix" used in the `upload-artifact` step of the ac
 autodoc_default_options = {
     'members': True
 }
 
-autodoc_typehints = 'both'
-autodoc_typehints_description_target = 'all'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

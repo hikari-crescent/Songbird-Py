@@ -51,30 +51,22 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                      options: Dict, args: str, retann: str) -> None:
     """Record type hints to env object."""
     try:
+        print(obj)
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
             annotation = annotations.setdefault(name, OrderedDict())
 
             obj_in_pyi = find_item(name)
-            if obj_in_pyi is None:
-                obj_in_pyi = obj
+            if obj_in_pyi:
+                obj = obj_in_pyi
 
-            type_hints = (get_type_hints(obj_in_pyi))
+            type_hints = get_type_hints(obj)
 
             for param, hint in type_hints.items():
                 if param is not None:
                     annotation[param] = typing.stringify(hint)
-            # sig = inspect.signature(
-            #     obj, type_aliases=app.config.autodoc_type_aliases)
 
-            # for param in sig.parameters.values():
-
-            #     if param.annotation is not param.empty:
-            #         annotation[param.name] = typing.stringify(param.annotation)
-            # if sig.return_annotation is not sig.empty:
-            #     annotation['return'] = typing.stringify(sig.return_annotation)
-            
-    except (TypeError, ValueError):
+    except (TypeError, ValueError) as e:
         pass
 
 
