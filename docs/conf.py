@@ -43,6 +43,7 @@ extensions = [
 from sphinx.ext.autodoc import FunctionDocumenter, MethodDocumenter, Documenter
 from sphinx.util import inspect
 import inspect as pyinspect
+import re
 from docstrings import find_item
 
 def new_format_signature(self, **kwargs) -> str:
@@ -68,7 +69,7 @@ def new_add_directive_header(self, sig: str) -> None:
 
     if inspect.isabstractmethod(obj):
         self.add_line('   :abstractmethod:', sourcename)
-    if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
+    if inspect.iscoroutinefunction(obj) or pyinspect.isasyncgenfunction(obj):
         self.add_line('   :async:', sourcename)
     if inspect.isclassmethod(obj):
         self.add_line('   :classmethod:', sourcename)
@@ -109,6 +110,29 @@ always_document_param_types = True
 # a list of builtin themes.
 #
 html_theme = 'furo'
+html_logo = 'songbird.png'
+
+html_theme_options = {
+    'light_css_variables': {
+        'color-brand-primary': 'royalblue',
+        'color-brand-content': 'chocolate',
+        'color-admonition-background': 'royalblue',
+        'color-api-name': '#4d76ae',
+        'color-api-pre-name': 'black',
+    },
+    'dark_css_variables': {
+        'color-brand-primary': 'white',
+        'color-brand-content': '#bda000',
+
+        # 'color-admonition-background': 'red',
+        'color-api-name': '#2BAB63',
+        'color-api-pre-name': 'white',
+        'color-api-overall':'lightgray',
+        'color-background-primary': "#353535",
+        'color-background-secondary': "#4e4e4e"
+    },
+    "sidebar_hide_name": False,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -116,3 +140,5 @@ html_theme = 'furo'
 html_static_path = ['_static']
 
 source_suffix = '.rst'
+
+pygments_style = 'monokai'
