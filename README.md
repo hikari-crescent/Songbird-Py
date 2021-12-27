@@ -2,6 +2,9 @@
 Songbird bindings for python. The goal is to provide an easy to use alternitive to Lavalink.
 Its written with rust-bindings to [Songbird](https://github.com/serenity-rs/songbird).
 
+## Dependencies
+This library requires [Opus](https://www.opus-codec.org/) to be installed. `ffmpeg` functions also require [FFmpeg](https://ffmpeg.org/) to be installed.
+
 ### Playing a Song
 Once you are connected to a channel, playing music is extremely easy.
 
