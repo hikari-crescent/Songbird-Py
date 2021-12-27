@@ -59,7 +59,6 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
             if obj_in_pyi:
                 obj = obj_in_pyi
 
-            print(obj)
             type_hints = get_type_hints(obj)
 
             for param, hint in type_hints.items():

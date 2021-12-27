@@ -41,8 +41,9 @@ extensions = [
 ]
 
 from sphinx.ext.autodoc import FunctionDocumenter, MethodDocumenter, Documenter
+from sphinx.util import inspect
+import inspect as pyinspect
 from docstrings import find_item
-import inspect
 
 def new_format_signature(self, **kwargs) -> str:
     path = '.'.join(self.objpath)
@@ -65,8 +66,16 @@ def new_add_directive_header(self, sig: str) -> None:
     if typehinter:
         obj = typehinter
 
+    if inspect.isabstractmethod(obj):
+        self.add_line('   :abstractmethod:', sourcename)
     if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
         self.add_line('   :async:', sourcename)
+    if inspect.isclassmethod(obj):
+        self.add_line('   :classmethod:', sourcename)
+    if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
+        self.add_line('   :staticmethod:', sourcename)
+    if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
+        self.add_line('   :final:', sourcename)
 
 
 FunctionDocumenter.format_signature = new_format_signature
