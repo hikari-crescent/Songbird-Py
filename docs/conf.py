@@ -40,8 +40,9 @@ extensions = [
     'autotypehint'
 ]
 
-from sphinx.ext.autodoc import FunctionDocumenter, MethodDocumenter
+from sphinx.ext.autodoc import FunctionDocumenter, MethodDocumenter, Documenter
 from docstrings import find_item
+import inspect
 
 def new_format_signature(self, **kwargs) -> str:
     path = '.'.join(self.objpath)
@@ -53,9 +54,25 @@ def new_format_signature(self, **kwargs) -> str:
 
     return str(signature(obj)).replace("'", "")
 
+def new_add_directive_header(self, sig: str) -> None:
+    sourcename = self.get_sourcename()
+    Documenter.add_directive_header(self, sig)
+
+    path = '.'.join(self.objpath)
+    obj = self.object
+    typehinter = find_item(path)
+
+    if typehinter:
+        obj = typehinter
+
+    if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
+        self.add_line('   :async:', sourcename)
+
 
 FunctionDocumenter.format_signature = new_format_signature
 MethodDocumenter.format_signature = new_format_signature
+FunctionDocumenter.add_directive_header = new_add_directive_header
+MethodDocumenter.add_directive_header = new_add_directive_header
 
 # The "prefix" used in the `upload-artifact` step of the ac
 autodoc_default_options = {
