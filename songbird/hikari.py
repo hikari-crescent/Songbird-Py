@@ -95,13 +95,13 @@ class Voicebox(VoiceConnection):
         await self.driver.unmute()
 
     async def is_muted(self) -> bool:
-        await self.driver.is_muted()
+        return await self.driver.is_muted()
 
     async def play_source(self, source: Source) -> TrackHandle:
-        await self.driver.play_source(source)
+        return await self.driver.play_source(source)
 
     async def play_only_source(self, source: Track) -> TrackHandle:
-        await self.driver.play_only_source(source)
+        return await self.driver.play_only_source(source)
 
     async def play(self, track: Track) -> None:
         await self.driver.play(track)

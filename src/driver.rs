@@ -11,7 +11,7 @@ use crate::config::PyConfig;
 use crate::exceptions::{CouldNotConnectToRTPError, UseAsyncConstructorError};
 use crate::source::PySource;
 use crate::track::PyTrack;
-use crate::track_handle::PyTrackHandle;
+use crate::track_handle::{PyTrackHandle, self};
 
 /// A connection to the Discord Voice gateway. The connection info must be from a
 /// different library as Songbird doesn't provide a regular Gateway connection.
