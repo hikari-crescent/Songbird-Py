@@ -8,10 +8,11 @@ use songbird::Config;
 use tokio::sync::Mutex;
 
 use crate::config::PyConfig;
+use crate::event::{EventHanlder, PyEvent};
 use crate::exceptions::{CouldNotConnectToRTPError, UseAsyncConstructorError};
 use crate::source::PySource;
 use crate::track::PyTrack;
-use crate::track_handle::{PyTrackHandle};
+use crate::track_handle::PyTrackHandle;
 
 /// A connection to the Discord Voice gateway. The connection info must be from a
 /// different library as Songbird doesn't provide a regular Gateway connection.
@@ -265,6 +266,44 @@ impl PyDriver {
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             Ok(driver.lock().await.set_config(config))
+        })
+    }
+
+    /// Returns a copy of the config for this Driver
+    fn get_config<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let driver = self.driver.clone();
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(PyConfig {
+                config: driver.lock().await.config().clone(),
+            })
+        })
+    }
+
+    fn add_event<'p>(
+        &'p self,
+        py: Python<'p>,
+        event: PyEvent,
+        call: PyObject,
+    ) -> PyResult<&'p PyAny> {
+        let driver = self.driver.clone();
+
+        let event_loop = pyo3_asyncio::get_running_loop(py)?;
+        let handler = EventHanlder {
+            coro: call,
+            event_loop: event_loop.into_py(py),
+        };
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(driver.lock().await.add_global_event(event.event, handler))
+        })
+    }
+
+    fn remove_all_events<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let driver = self.driver.clone();
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(driver.lock().await.remove_all_global_events())
         })
     }
 }

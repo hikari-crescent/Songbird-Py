@@ -11,9 +11,10 @@ use songbird::{CoreEvent, Event, EventContext, EventHandler, TrackEvent};
 use crate::track_handle::{PyTrackHandle, PyTrackState};
 use crate::utils::unwrap_f64_to_duration;
 
+#[derive(Clone)]
 pub struct EventHanlder {
-    coro: PyObject,
-    event_loop: PyObject,
+    pub coro: PyObject,
+    pub event_loop: PyObject,
 }
 
 impl EventHanlder {
@@ -25,7 +26,22 @@ impl EventHanlder {
         let asyncio = py.import("asyncio")?;
         let ensure_future = asyncio.getattr("ensure_future")?;
 
-        let coro = self.coro.call1(py, (event_to_py(py, ctx)?,))?;
+        let coro_wrapper: Py<PyAny> = PyModule::from_code(
+            py,
+            "def wrap(coro, args):
+                if not isinstance(args, tuple):
+                    args = (args,)
+                return coro(*args)
+            ",
+            "",
+            "",
+        )?
+        .getattr("wrap")?
+        .into();
+
+        // let coro = self.coro.call1(py, (event_to_py(py, ctx)?,))?;
+        let coro = coro_wrapper.call1(py, (&self.coro, event_to_py(py, ctx)?))?;
+
         let kwargs = HashMap::from([("loop", &self.event_loop)]);
 
         let res = ensure_future.call((coro,), Some(&kwargs.into_py_dict(py)))?;
@@ -100,6 +116,7 @@ fn event_to_py(py: Python, event: &EventContext) -> PyResult<PyObject> {
 }
 
 #[pyclass(name = "Event")]
+#[derive(Clone)]
 pub struct PyEvent {
     pub event: Event,
 }

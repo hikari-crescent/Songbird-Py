@@ -5,7 +5,7 @@ from typing import Callable, Awaitable, Any
 from hikari import snowflakes, VoiceEvent
 from hikari.api import VoiceComponent, VoiceConnection
 
-from songbird import Driver, Source, Config, TrackHandle, Track
+from songbird import Driver, Event, Source, Config, TrackHandle, Track
 
 
 class Voicebox(VoiceConnection):
@@ -85,13 +85,13 @@ class Voicebox(VoiceConnection):
         """Submit an event to the voice connection to be processed."""
 
     async def leave(self) -> None:
-        await self.driver.leave()
+        return await self.driver.leave()
 
     async def mute(self) -> None:
-        await self.driver.mute()
+        return await self.driver.mute()
 
     async def unmute(self) -> None:
-        await self.driver.unmute()
+        return await self.driver.unmute()
 
     async def is_muted(self) -> bool:
         return await self.driver.is_muted()
@@ -103,22 +103,28 @@ class Voicebox(VoiceConnection):
         return await self.driver.play_only_source(source)
 
     async def play(self, track: Track) -> None:
-        await self.driver.play(track)
+        return await self.driver.play(track)
 
     async def play_only(self, track: Track) -> None:
-        await self.driver.play_only(track)
+        return await self.driver.play_only(track)
 
     async def set_bitrate(self, bitrate: int) -> None:
-        await self.driver.set_bitrate(bitrate)
+        return await self.driver.set_bitrate(bitrate)
 
     async def set_bitrate_to_max(self) -> None:
-        await self.driver.set_bitrate_to_max()
+        return await self.driver.set_bitrate_to_max()
 
     async def set_bitrate_to_auto(self) -> None:
-        await self.driver.set_bitrate_to_auto()
+        return await self.driver.set_bitrate_to_auto()
 
     async def stop(self) -> None:
-        await self.driver.stop()
+        return await self.driver.stop()
 
     async def set_config(self, config: Config) -> None:
-        await self.driver.set_config(config)
+        return await self.driver.set_config(config)
+
+    async def get_config(self) -> Config:
+        return await self.driver.get_config()
+
+    async def add_event(self, event: Event, call: Callable) -> None:
+        return await self.driver.add_event(event, call)

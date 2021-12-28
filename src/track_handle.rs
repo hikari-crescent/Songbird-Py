@@ -210,11 +210,11 @@ impl PyTrackHandle {
     }
     /// Adds an event to the track.
     #[pyo3(text_signature = "($self)")]
-    fn add_event(&self, py: Python, event: &PyEvent, func: PyObject) -> PyResult<()> {
+    fn add_event(&self, py: Python, event: &PyEvent, call: PyObject) -> PyResult<()> {
         let current_loop = pyo3_asyncio::get_running_loop(py)?;
         handle_track_result(self.track_handle.add_event(
             event.event,
-            EventHanlder::new(func, PyObject::from(current_loop)),
+            EventHanlder::new(call, PyObject::from(current_loop)),
         ))
     }
     /// Gets the `TrackState` for a track.
