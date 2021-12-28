@@ -4,6 +4,7 @@ use pyo3::prelude::*;
 use songbird::tracks::{LoopState, PlayMode, TrackHandle, TrackResult, TrackState};
 use std::sync::Arc;
 
+use crate::event::{EventHanlder, PyEvent};
 use crate::exceptions::TrackError;
 use crate::utils::unwrap_duration;
 
@@ -105,9 +106,8 @@ impl PyTrackState {
     }
 }
 
-
 /// The metadata for a track
-/// 
+///
 /// Attributes
 /// ----------
 /// track
@@ -207,6 +207,15 @@ impl PyTrackHandle {
             self.track_handle
                 .seek_time(Duration::from_secs_f64(position)),
         )
+    }
+    /// Adds an event to the track.
+    #[pyo3(text_signature = "($self)")]
+    fn add_event(&self, py: Python, event: &PyEvent, func: PyObject) -> PyResult<()> {
+        let current_loop = pyo3_asyncio::get_running_loop(py)?;
+        handle_track_result(self.track_handle.add_event(
+            event.event,
+            EventHanlder::new(func, PyObject::from(current_loop)),
+        ))
     }
     /// Gets the `TrackState` for a track.
     #[pyo3(text_signature = "($self)")]

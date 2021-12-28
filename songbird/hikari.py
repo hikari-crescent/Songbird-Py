@@ -28,7 +28,6 @@ class Voicebox(VoiceConnection):
         user_id: snowflakes.Snowflake,
         **kwargs: Any,
     ) -> Voicebox:
-
         driver = await Driver.create()
         await driver.connect(
             token=token,

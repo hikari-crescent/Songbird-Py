@@ -146,3 +146,66 @@ class Track:
     async def state(self) -> TrackState: ...
     async def seek_time(self, position: float) -> float: ...
     async def uuid(self) -> str: ...
+
+class Event:
+    Cancel: Event
+    Play: Event
+    Pause: Event
+    End: Event
+    Loop: Event
+    SpeakingStateUpdate: Event
+    SpeakingUpdate: Event
+    ClientDisconnect: Event
+    DriverConnect: Event
+    DriverReconnect: Event
+    DriverDisconnect: Event
+
+    def periodic(duration: float, phase: Optional[float] = None) -> Event: ...
+    def delayed(duration: float) -> Event: ...
+
+class SpeakingState:
+    Microphone: SpeakingState
+    Soundshare: SpeakingState
+    Priority: SpeakingState
+
+class Speaking:
+    delay: Optional[int]
+    speaking: SpeakingState
+    ssrc: int
+    user_id: Optional[int]
+
+class SpeakingUpdateData:
+    speaking: bool
+    ssrc: int
+
+class ClientConnect:
+    audio_ssrc: int
+    user_id: int
+    video_ssrc: int
+
+class ConnectData:
+    channel_id: int
+    guild_id: int
+    session_id: str
+    server: str
+    ssrc: int
+
+class DisconnectData:
+    kind: DisconnectKind
+    reason: DisconnectReason
+    channel_id: Optional[int]
+    guild_id: int
+    session_id: str
+
+class DisconnectKind:
+    Connect: DisconnectKind
+    Reconnect: DisconnectKind
+    Runtime: DisconnectKind
+
+class DisconnectReason:
+    AttemptDiscarded: DisconnectReason
+    Internal: DisconnectReason
+    Io: DisconnectReason
+    ProtocolViolation: DisconnectReason
+    TimedOut: DisconnectReason
+    WsClosed: DisconnectReason

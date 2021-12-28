@@ -1520,6 +1520,7 @@ dependencies = [
 name = "songbird-py"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "pyo3",
  "pyo3-asyncio",
  "songbird",

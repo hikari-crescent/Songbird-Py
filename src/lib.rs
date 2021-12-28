@@ -8,6 +8,7 @@ use exceptions::{
 
 mod config;
 mod driver;
+mod event;
 mod source;
 mod track;
 mod track_handle;
@@ -20,13 +21,13 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<driver::PyDriver>()?;
     m.add_class::<source::PySource>()?;
 
-    //Config
+    // Config
     m.add_class::<config::PyConfig>()?;
     m.add_class::<config::PyCryptoMode>()?;
     m.add_class::<config::PyDecodeMode>()?;
     m.add_class::<config::PyStrategy>()?;
 
-    //track_handler
+    // Track_handler
     m.add_class::<track_handle::PyPlayMode>()?;
     m.add_class::<track_handle::PyTrackHandle>()?;
     m.add_class::<track_handle::PyTrackState>()?;
@@ -34,9 +35,19 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<track_handle::PyMetadata>()?;
     m.add_class::<track_handle::PyTrackHandle>()?;
 
-    //Track
+    // Track
     m.add_class::<track::PyTrack>()?;
     track::register(py, m)?;
+
+    // Events
+    m.add_class::<event::PyEvent>()?;
+    m.add_class::<event::PySpeakingState>()?;
+    m.add_class::<event::PySpeaking>()?;
+    m.add_class::<event::PySpeakingUpdateData>()?;
+    m.add_class::<event::PyClientConnect>()?;
+    m.add_class::<event::PyConnectData>()?;
+    m.add_class::<event::PyDisconnectKind>()?;
+    m.add_class::<event::PyDisconnectReason>()?;
 
     m.add(
         "CouldNotConnectToRTPError",
