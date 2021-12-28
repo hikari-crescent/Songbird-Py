@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use pyo3::prelude::*;
-use songbird::tracks::Track;
+use songbird::tracks::{Track, TrackHandle};
 use tokio::sync::Mutex;
 
 use crate::source::PySource;
@@ -24,6 +24,7 @@ pub fn py_create_player<'p>(py: Python<'p>, source: &'p PySource) -> PyResult<&'
         Ok((
             PyTrack {
                 track: Arc::from(Mutex::from(Some(track))),
+                handle: handle.clone()
             },
             PyTrackHandle::from(handle),
         ))
@@ -41,6 +42,7 @@ pub(crate) fn register(py: Python, m: &PyModule) -> PyResult<()> {
 #[pyclass(name = "Track")]
 pub struct PyTrack {
     pub track: Arc<Mutex<Option<Track>>>,
+    pub handle: TrackHandle
 }
 
 #[pymethods(name = "Track")]

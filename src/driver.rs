@@ -200,25 +200,28 @@ impl PyDriver {
     /// Plays a Track object. This makes the Track object unuseable.
     fn play<'p>(&'p self, py: Python<'p>, track: &'p PyTrack) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
+        let handle = PyTrackHandle::from(track.handle.clone());
         let track = track.track.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let mut inner = track.lock().await;
             let old = mem::take(&mut *inner);
             driver.lock().await.play(old.unwrap());
-            Ok(())
+            Ok(handle)
         })
     }
 
     /// Same as `play` but stops all other sources from playing.
     fn play_only<'p>(&'p self, py: Python<'p>, track: &'p PyTrack) -> PyResult<&'p PyAny> {
         let driver = self.driver.clone();
+        let handle = PyTrackHandle::from(track.handle.clone());
         let track = track.track.clone();
+
         pyo3_asyncio::tokio::future_into_py(py, async move {
             let mut inner = track.lock().await;
             let old = mem::take(&mut *inner);
             driver.lock().await.play_only(old.unwrap());
-            Ok(())
+            Ok(handle)
         })
     }
 
