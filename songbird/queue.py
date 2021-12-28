@@ -1,16 +1,24 @@
 from __future__ import annotations
 
+from asyncio import Event as AsyncEvent
 from typing import Any, List, Optional, Union
 
 from . import Driver, Event, Track, Source, TrackHandle
 
 
+def extract_driver(driver: Any):
+    if isinstance(driver, Driver):
+        return driver
+    return driver.driver
+
 class Queue:
     def __init__(self, driver: Driver) -> None:
-        self.driver = driver
+        self.driver = extract_driver(driver)
         self.queue: List[Union[Track, Source]] = []
 
         self.playing: Optional[TrackHandle] = None
+
+        self.item_added: AsyncEvent = AsyncEvent()
 
     @classmethod
     def with_items(cls, driver: Driver, items: List[Union[Track, Source]]) -> Queue:
@@ -25,6 +33,10 @@ class Queue:
 
     async def __play_next(self, *args) -> None:
         """Internal method. Plays the next track in the queue"""
+        if not self:
+            await self.item_added.wait()
+            self.item_added.clear()
+
         next_player = self.queue.pop(0)
         if isinstance(next_player, Track):
             self.playing = await self.driver.play(next_player)
@@ -43,6 +55,7 @@ class Queue:
         self.__play_next()
 
     def append(self, playable: Union[Track, Source]) -> None:
+        self.item_added.set()
         self.queue.append(playable)
 
     def pop(self, index: int):
