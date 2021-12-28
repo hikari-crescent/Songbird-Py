@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from asyncio import Event as AsyncEvent
+from asyncio.tasks import ensure_future
 from typing import Any, List, Optional, Union
 
 from . import Driver, Event, Track, Source, TrackHandle
@@ -20,6 +21,8 @@ class Queue:
 
         self.item_added: AsyncEvent = AsyncEvent()
 
+        ensure_future(self.start())
+
     @classmethod
     def with_items(cls, driver: Driver, items: List[Union[Track, Source]]) -> Queue:
         q = cls(driver)
@@ -27,7 +30,7 @@ class Queue:
         return q
 
     async def start(self) -> None:
-        """Starts the queue."""
+        """Starts the queue. Does not need to be called manually."""
         await self.driver.add_event(Event.End, self.__play_next)
         await self.__play_next()
 
