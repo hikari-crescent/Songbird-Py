@@ -23,7 +23,7 @@ from sphinx.util import inspect, typing
 from types import ModuleType
 songbird = ModuleType('songbird', 'pyi loaded for typing data')
 
-with open("../songbird/__init__.pyi") as f:
+with open("../songbird/songbird.pyi") as f:
     exec(f.read(), songbird.__dict__)
 
 items = dir(songbird)

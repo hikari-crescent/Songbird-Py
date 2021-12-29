@@ -1,3 +1,4 @@
+use std::mem;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -14,17 +15,21 @@ use crate::track_handle::{
 /// can be used to control it after it starts playing.
 #[pyfunction]
 #[pyo3(name = "create_player")]
-pub fn py_create_player<'p>(py: Python<'p>, source: &'p PySource) -> PyResult<&'p PyAny> {
+pub fn py_create_player<'p>(py: Python<'p>, source: &'p mut PySource) -> PyResult<&'p PyAny> {
+    source.raise_if_consumed()?;
+
     let source = source.source.clone();
+
     pyo3_asyncio::tokio::future_into_py(py, async move {
-        let pyinput = source.lock().await;
-        let source = pyinput.get_input().await?;
-        let (track, handle) = songbird::create_player(source);
+        let mut pyinput = source.lock().await;
+        let old = mem::take(&mut *pyinput);
+
+        let (track, handle) = songbird::create_player(old.unwrap());
 
         Ok((
             PyTrack {
                 track: Arc::from(Mutex::from(Some(track))),
-                handle: handle.clone()
+                handle: handle.clone(),
             },
             PyTrackHandle::from(handle),
         ))
@@ -42,7 +47,7 @@ pub(crate) fn register(py: Python, m: &PyModule) -> PyResult<()> {
 #[pyclass(name = "Track")]
 pub struct PyTrack {
     pub track: Arc<Mutex<Option<Track>>>,
-    pub handle: TrackHandle
+    pub handle: TrackHandle,
 }
 
 #[pymethods(name = "Track")]

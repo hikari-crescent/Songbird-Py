@@ -9,7 +9,7 @@ import typing
 
 songbird = ModuleType('songbird', 'pyi loaded for typing data')
 
-with open ("../songbird/__init__.pyi") as f:
+with open ("../songbird/songbird.pyi") as f:
     exec("from typing import *", songbird.__dict__)
     exec(f.read(), songbird.__dict__)
 

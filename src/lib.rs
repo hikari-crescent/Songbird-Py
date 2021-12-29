@@ -2,8 +2,8 @@ use pyo3::prelude::*;
 
 mod exceptions;
 use exceptions::{
-    CouldNotConnectToRTPError, CouldNotOpenFileError, FfmpegError, SongbirdError, TrackError,
-    UseAsyncConstructorError, YtdlError,
+    ConsumedSourceError, CouldNotConnectToRTPError, CouldNotOpenFileError, FfmpegError,
+    SongbirdError, TrackError, UseAsyncConstructorError, YtdlError,
 };
 
 mod config;
@@ -49,6 +49,7 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<event::PyDisconnectKind>()?;
     m.add_class::<event::PyDisconnectReason>()?;
 
+    m.add("ConsumedSourceError", py.get_type::<ConsumedSourceError>())?;
     m.add(
         "CouldNotConnectToRTPError",
         py.get_type::<CouldNotConnectToRTPError>(),

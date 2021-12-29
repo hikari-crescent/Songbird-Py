@@ -10,7 +10,7 @@ use tokio::sync::Mutex;
 use crate::config::PyConfig;
 use crate::event::{EventHanlder, PyEvent};
 use crate::exceptions::{CouldNotConnectToRTPError, UseAsyncConstructorError};
-use crate::source::PySource;
+use crate::source::{PySource};
 use crate::track::PyTrack;
 use crate::track_handle::PyTrackHandle;
 
@@ -74,7 +74,9 @@ impl PyDriver {
     }
 
     /// Connect to a voice channel
-    /// Note: url can start with `wss://` or no protocol.
+    /// .. note:
+    /// 
+    ///     url can start with `wss://` or no protocol.
     ///
     /// Args:
     ///     token: Token recieved from the Discord gateway. This is not your bot token.
@@ -166,33 +168,47 @@ impl PyDriver {
     /// Plays a Playable object.
     /// Playable are activated when you try to play them. That means all errors are
     /// thrown in this method.
-    fn play_source<'p>(&'p self, py: Python<'p>, source: &'p PySource) -> PyResult<&'p PyAny> {
+    /// 
+    /// Raises
+    /// ------
+    /// ConsumedSourceError
+    ///     Source was already played or used to create a track object.
+    fn play_source<'p>(&'p self, py: Python<'p>, source: &'p mut PySource) -> PyResult<&'p PyAny> {
+        source.raise_if_consumed()?;
+
         let driver = self.driver.clone();
         let source = source.source.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            let source = source.lock().await.get_input().await;
-            if let Err(err) = source {
-                return Err(err);
-            }
+            let mut source = source.lock().await;
+            let old = mem::take(&mut *source);
 
-            let track_handle = driver.lock().await.play_source(source.unwrap());
+            let track_handle = driver.lock().await.play_source(old.unwrap());
             Ok(PyTrackHandle::from(track_handle))
         })
     }
 
     /// Same as `play_source` but stops all other sources from playing.
-    fn play_only_source<'p>(&'p self, py: Python<'p>, source: &'p PySource) -> PyResult<&'p PyAny> {
+    /// 
+    /// Raises
+    /// ------
+    /// ConsumedSourceError
+    ///     Source was already played or used to create a track object.
+    fn play_only_source<'p>(
+        &'p self,
+        py: Python<'p>,
+        source: &'p mut PySource,
+    ) -> PyResult<&'p PyAny> {
+        source.raise_if_consumed()?;
+
         let driver = self.driver.clone();
         let source = source.source.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            let source = source.lock().await.get_input().await;
-            if let Err(err) = source {
-                return Err(err);
-            }
+            let mut source = source.lock().await;
+            let old = mem::take(&mut *source);
 
-            let track_handle = driver.lock().await.play_only_source(source.unwrap());
+            let track_handle = driver.lock().await.play_only_source(old.unwrap());
             Ok(PyTrackHandle::from(track_handle))
         })
     }

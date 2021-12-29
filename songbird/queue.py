@@ -12,13 +12,10 @@ def extract_driver(driver: Any):
         return driver
     return driver.driver
 
-class Queue:
+class Queue(list):
     def __init__(self, driver: Driver) -> None:
         self.driver = extract_driver(driver)
-        self.queue: List[Union[Track, Source]] = []
-
         self.playing: Optional[TrackHandle] = None
-
         self.item_added: AsyncEvent = AsyncEvent()
 
         ensure_future(self.start())
@@ -26,7 +23,7 @@ class Queue:
     @classmethod
     def with_items(cls, driver: Driver, items: List[Union[Track, Source]]) -> Queue:
         q = cls(driver)
-        q.queue = items
+        q.extend(items)
         return q
 
     async def start(self) -> None:
@@ -40,7 +37,7 @@ class Queue:
             await self.item_added.wait()
             self.item_added.clear()
 
-        next_player = self.queue.pop(0)
+        next_player = self.pop(0)
         if isinstance(next_player, Track):
             self.playing = await self.driver.play(next_player)
         elif isinstance(next_player, Source):
@@ -56,25 +53,3 @@ class Queue:
         self.remove(self.playing)
         self.playing.stop()
         self.__play_next()
-
-    def append(self, playable: Union[Track, Source]) -> None:
-        self.item_added.set()
-        self.queue.append(playable)
-
-    def pop(self, index: int):
-        return self.queue.pop(index)
-
-    def remove(self, item: Any):
-        return self.queue.remove(item)
-
-    def insert(self, index: int, obj: Any):
-        self.queue.insert(index, obj)
-
-    def __len__(self):
-        return len(self.queue)
-
-    def __getitem__(self, index: int):
-        return self.queue[index]
-
-    def __delitem__(self, index: int):
-        del self.queue[index]
