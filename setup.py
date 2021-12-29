@@ -8,7 +8,7 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     data_files=[
-        "songbird/__init__.pyi"
+        "songbird/songbird.pyi"
     ],
     version="0.0.2",
     classifiers=[

@@ -39,7 +39,6 @@ impl EventHanlder {
         .getattr("wrap")?
         .into();
 
-        // let coro = self.coro.call1(py, (event_to_py(py, ctx)?,))?;
         let coro = coro_wrapper.call1(py, (&self.coro, event_to_py(py, ctx)?))?;
 
         let kwargs = HashMap::from([("loop", &self.event_loop)]);
