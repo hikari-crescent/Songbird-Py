@@ -1,9 +1,9 @@
-use std::{collections::HashMap, time::Duration};
+use std::time::Duration;
 
 use async_trait::async_trait;
 use pyo3::exceptions::PyNotImplementedError;
 use pyo3::prelude::*;
-use pyo3::types::IntoPyDict;
+use pyo3::types::PyDict;
 use songbird::events::context_data::{ConnectData, DisconnectKind, DisconnectReason};
 use songbird::model::SpeakingState;
 use songbird::{CoreEvent, Event, EventContext, EventHandler, TrackEvent};
@@ -41,9 +41,9 @@ impl EventHanlder {
 
         let coro = coro_wrapper.call1(py, (&self.coro, event_to_py(py, ctx)?))?;
 
-        let kwargs = HashMap::from([("loop", &self.event_loop)]);
+        let kwargs = PyDict::from_sequence(py, [("loop", &self.event_loop)].into_py(py))?;
 
-        let res = ensure_future.call((coro,), Some(&kwargs.into_py_dict(py)))?;
+        let res = ensure_future.call((coro,), Some(kwargs))?;
 
         Ok(PyObject::from(res))
     }
