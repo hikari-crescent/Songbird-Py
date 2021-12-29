@@ -76,4 +76,4 @@ class Queue(list):
         """Plays the next track in the queue"""
         self.remove(self.current_track_handle)
         self.current_track_handle.stop()
-        self.__play_next()
+        ensure_future(self.__play_next())
