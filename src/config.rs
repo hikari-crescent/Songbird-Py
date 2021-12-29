@@ -120,9 +120,11 @@ impl PyDecodeMode {
 }
 
 /// Config objects are how you set a driver's configuration.
+/// 
 /// .. note::
 /// 
 ///     Changes in a Config object are only passed to the ``Driver`` with the ``set_config`` method.
+/// 
 #[pyclass(name = "Config")]
 #[pyo3(text_signature = "(/)")]
 pub struct PyConfig {

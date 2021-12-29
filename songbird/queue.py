@@ -4,7 +4,7 @@ from asyncio import Event as AsyncEvent
 from asyncio.tasks import ensure_future
 from typing import Any, List, Optional, Union
 
-from . import Driver, Event, Track, Source, TrackHandle
+from .songbird import Driver, Event, Track, Source, TrackHandle
 
 
 def extract_driver(driver: Any):
@@ -12,10 +12,27 @@ def extract_driver(driver: Any):
         return driver
     return driver.driver
 
+
 class Queue(list):
+    """
+    Parameters
+    ----------
+    driver : :class:`~songbird.songbird.Driver`
+        The driver to control.
+    
+    Attributes
+    ----------
+    current_track_handle : Optional[:class:`~songbird.songbird.TrackHandle`]
+        The TrackHandle for the currently playing song.
+    running : bool
+        If the Queue is running or not. This will be :data:`True` if the Queue isn't
+        stopped.
+    """
     def __init__(self, driver: Driver) -> None:
         self.driver = extract_driver(driver)
-        self.playing: Optional[TrackHandle] = None
+        self.current_track_handle: Optional[TrackHandle] = None
+        self.running = True
+
         self.item_added: AsyncEvent = AsyncEvent()
 
         ensure_future(self.start())
@@ -31,17 +48,24 @@ class Queue(list):
         await self.driver.add_event(Event.End, self.__play_next)
         await self.__play_next()
 
+    async def stop(self) -> None:
+        """Stops the queue from running. Does not stop the currently playing song."""
+        self.running = False
+
     async def __play_next(self, *args) -> None:
         """Internal method. Plays the next track in the queue"""
+        if not self.running:
+            return
+
         if not self:
             await self.item_added.wait()
             self.item_added.clear()
 
         next_player = self.pop(0)
         if isinstance(next_player, Track):
-            self.playing = await self.driver.play(next_player)
+            self.current_track_handle = await self.driver.play(next_player)
         elif isinstance(next_player, Source):
-            self.playing = await self.driver.play_source(next_player)
+            self.current_track_handle = await self.driver.play_source(next_player)
         else:
             raise Exception(
                 f"{next_player} is not a playable object. It must be of type 'Track' or"
@@ -50,6 +74,6 @@ class Queue(list):
 
     async def skip(self):
         """Plays the next track in the queue"""
-        self.remove(self.playing)
-        self.playing.stop()
+        self.remove(self.current_track_handle)
+        self.current_track_handle.stop()
         self.__play_next()

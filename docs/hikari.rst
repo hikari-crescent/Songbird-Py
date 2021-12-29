@@ -1,4 +1,4 @@
-Songbird Hikari Integration
+Hikari Integration
 ---------------------------
 
 See ``hikari.py`` in the examples directory for an example on how to use the Voicebox object.

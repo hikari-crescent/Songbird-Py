@@ -47,7 +47,7 @@ impl PySource {
 impl PySource {
     /// Use youtube dl to play a video from a URL
     ///
-    /// # Example
+    /// Example
     /// .. code-block:: python
     ///
     ///     await driver.play(Source.ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw"))

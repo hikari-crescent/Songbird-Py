@@ -24,4 +24,5 @@ Indices and tables
    :caption: Contents:
 
    hikari
+   queue
    songbird

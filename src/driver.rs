@@ -74,6 +74,7 @@ impl PyDriver {
     }
 
     /// Connect to a voice channel
+    /// 
     /// .. note:
     /// 
     ///     url can start with `wss://` or no protocol.
