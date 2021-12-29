@@ -6,18 +6,27 @@
 Welcome to Songbird-py's documentation!
 =======================================
 
+Songbird-py is a python library providing python bindings for Songbird_.
+
+Github_
+
+.. _Github: https://github.com/Lunarmagpie/Songbird-Py
+
+
+.. _Songbird: https://docs.rs/songbird/latest/songbird/
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
 
 
-Indices and tables
-==================
+Find Stuff Here
+===============
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
 
 .. toctree::
    :maxdepth: 2
