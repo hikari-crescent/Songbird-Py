@@ -10,7 +10,7 @@ setup(
     data_files=[
         "songbird/songbird.pyi"
     ],
-    version="0.0.2",
+    version="0.0.3",
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Rust",
@@ -23,6 +23,7 @@ setup(
     url="https://github.com/Lunarmagpie/Songbird-Py",
     project_urls={
         "GitHub": "https://github.com/Lunarmagpie/Songbird-Py",
+        "Docs": "https://songbird-py.readthedocs.io/en/latest/",
         "Bug Tracker": "https://github.com/Lunarmagpie/Songbird-Py/issues",
     },
     include_package_data=True,
