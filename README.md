@@ -16,7 +16,7 @@ from songbird import ytdl
 
 # `voice` was created from a connection to the gateway.
 
-track_handle = await voice.play_source(ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
+track_handle = await voice.play_source(await ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
 
 await sleep(5)
 # Doesn't need to be awaited!
