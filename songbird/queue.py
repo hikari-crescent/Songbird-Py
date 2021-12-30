@@ -31,7 +31,7 @@ class Queue(list):
     def __init__(self, driver: Driver) -> None:
         self.driver = extract_driver(driver)
         self.current_track_handle: Optional[TrackHandle] = None
-        self.running = True
+        self.running = False
 
         self.item_added: AsyncEvent = AsyncEvent()
 
@@ -45,6 +45,11 @@ class Queue(list):
 
     async def start(self) -> None:
         """Starts the queue. Does not need to be called manually."""
+        if self.running:
+            return
+
+        self.running = True
+
         await self.driver.add_event(Event.End, self.__play_next)
         await self.__play_next()
 
@@ -74,5 +79,8 @@ class Queue(list):
 
     def skip(self):
         """Plays the next track in the queue"""
+        if not self.current_track_handle:
+            raise Exception("No track is playing")
+
         self.current_track_handle.stop()
         ensure_future(self.__play_next())
