@@ -5,6 +5,7 @@ Its written with rust-bindings to [Songbird](https://github.com/serenity-rs/song
 [Songbird-py Docs](https://songbird-py.readthedocs.io/en/latest/)
 
 ## Dependencies
+[Rust](https://www.rust-lang.org/tools/install) will need to be installed to build the project (this happens automatically when you install it from pip!). Currently there are no prebuilt-binaries.
 This library requires [Opus](https://www.opus-codec.org/) to be installed. `ffmpeg` functions also require [FFmpeg](https://ffmpeg.org/) to be installed.
 
 ### Playing a Song
