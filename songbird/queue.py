@@ -72,8 +72,7 @@ class Queue(list):
                 " 'Source'"
             )
 
-    async def skip(self):
+    def skip(self):
         """Plays the next track in the queue"""
-        self.remove(self.current_track_handle)
         self.current_track_handle.stop()
         ensure_future(self.__play_next())
