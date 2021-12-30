@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from asyncio import Event as AsyncEvent
 from asyncio.tasks import ensure_future
-from typing import Any, List, Optional, Union
+from typing import Any, Awaitable, List, Optional, Union
 
 from .songbird import Driver, Event, Track, Source, TrackHandle
 
@@ -19,7 +19,7 @@ class Queue(list):
     ----------
     driver : :class:`~songbird.songbird.Driver`
         The driver to control.
-    
+
     Attributes
     ----------
     current_track_handle : Optional[:class:`~songbird.songbird.TrackHandle`]
@@ -28,6 +28,7 @@ class Queue(list):
         If the Queue is running or not. This will be :data:`True` if the Queue isn't
         stopped.
     """
+
     def __init__(self, driver: Driver) -> None:
         self.driver = extract_driver(driver)
         self.current_track_handle: Optional[TrackHandle] = None
@@ -50,14 +51,14 @@ class Queue(list):
 
         self.running = True
 
-        await self.driver.add_event(Event.End, self.__play_next)
-        await self.__play_next()
+        await self.driver.add_event(Event.End, self._play_next)
+        await self._play_next()
 
     async def stop(self) -> None:
         """Stops the queue from running. Does not stop the currently playing song."""
         self.running = False
 
-    async def __play_next(self, *args) -> None:
+    async def _play_next(self, *args) -> None:
         """Internal method. Plays the next track in the queue"""
         if not self.running:
             return
@@ -67,6 +68,12 @@ class Queue(list):
             self.item_added.clear()
 
         next_player = self.pop(0)
+
+        # This allows players to be added to the queue without being activated immediatly
+        # helps save memory when adding an entire playlist.
+        if isinstance(next_player, Awaitable):
+            next_player = await next_player
+
         if isinstance(next_player, Track):
             self.current_track_handle = await self.driver.play(next_player)
         elif isinstance(next_player, Source):
@@ -83,4 +90,4 @@ class Queue(list):
             raise Exception("No track is playing")
 
         self.current_track_handle.stop()
-        ensure_future(self.__play_next())
+        ensure_future(self._play_next())
