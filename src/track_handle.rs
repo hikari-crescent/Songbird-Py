@@ -173,6 +173,38 @@ impl PyMetadata {
     }
 }
 
+#[pymethods]
+impl PyMetadata {
+    #[new]
+    fn new(
+        track: Option<String>,
+        artist: Option<String>,
+        channel: Option<String>,
+        channels: Option<u8>,
+        date: Option<String>,
+        duration: Option<f64>,
+        sample_rate: Option<u32>,
+        source_url: Option<String>,
+        start_time: Option<f64>,
+        thumbnail: Option<String>,
+        title: Option<String>,
+    ) -> Self {
+        Self {
+            track,
+            artist,
+            date,
+            channels,
+            channel,
+            start_time,
+            source_url,
+            duration,
+            sample_rate,
+            thumbnail,
+            title
+        }
+    }
+}
+
 #[pyclass(name = "TrackHandle")]
 pub struct PyTrackHandle {
     track_handle: Arc<TrackHandle>,

@@ -1,9 +1,10 @@
 from asyncio import create_subprocess_shell
 from asyncio.subprocess import PIPE
 import json
-from typing import List
+from typing import Any, Dict, List
 
 from songbird.helpers import ytdl
+from songbird.songbird import Metadata, Track
 
 
 async def get_playlist(playlist: str) -> List[str]:
@@ -15,16 +16,21 @@ async def get_playlist(playlist: str) -> List[str]:
     out = []
     if stdout:
         out.extend(
-            YoutubeVideo(entry["url"])
-            for entry in json.loads(stdout)["entries"]
+            YoutubeVideo(entry) for entry in json.loads(stdout)["entries"]
         )
 
     return out
 
 
 class YoutubeVideo:
-    def __init__(self, url: str) -> None:
-        self.url = url
+    def __init__(self, video: Dict[str, Any]) -> None:
+        self.metadata = Metadata(
+            channel=video.get("channel"),
+            duration=video.get("duration"),
+            source_url=video.get("url"),
+            title=video.get("title"),
+            thumbnail=video["thumbnails"][0]["url"]
+        )
 
     def __await__(self):
-        return ytdl(self.url).__await__()
+        return ytdl(self.metadata.source_url).__await__()
