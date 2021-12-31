@@ -14,13 +14,9 @@ class Bot(Client):
 
     @Client.event
     async def on_ready(self, shard):
+        voice = await Voicebox.connect(self, shard, YOUR_GUILD_ID, YOUR_CHANNEL_ID)
 
-        guild_id = YOUR_GUILD_ID
-        channel_id = YOUR_CHANNEL_ID
-
-        voice = await Voicebox.connect(self, shard, guild_id, channel_id)
-
-        self.voiceboxes[hash((guild_id, channel_id))] = voice
+        self.voiceboxes[YOUR_GUILD_ID] = voice
 
         await voice.play_source(await ytdl("https://www.youtube.com/watch?v=3Rl-Ty5jv8o"))
 
