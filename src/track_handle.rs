@@ -115,7 +115,7 @@ impl PyTrackState {
 ///     The track of this stream.
 /// artist
 ///     The main artist of the track.
-/// data
+/// date
 ///     The date of creation of the stream.
 /// channels
 ///     The number of audio channels in the track. Any number >= 2 is treated as stereo.
@@ -123,6 +123,10 @@ impl PyTrackState {
 ///     The youtube channel for the track.
 /// start_time
 ///     The time at which playback was started.
+/// duration
+///     The duration of the track.
+/// sample_rate
+///     The sample rate of the track.
 /// source_url
 ///     The source url of the stream.
 /// title
