@@ -4,7 +4,7 @@ import json
 from typing import Any, Dict, List
 
 from songbird.helpers import ytdl
-from songbird.songbird import Metadata, Track
+from songbird.songbird import Metadata
 
 
 async def get_playlist(playlist: str) -> List[str]:

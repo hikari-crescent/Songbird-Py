@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, Awaitable, Any
 
-from hikari import snowflakes, VoiceEvent
+from hikari import snowflakes, VoiceEvent, GatewayBot
 from hikari.api import VoiceComponent, VoiceConnection
 
 from .songbird import Driver
@@ -11,6 +11,14 @@ from .voicebox_base import VoiceboxBase
 
 class Voicebox(VoiceConnection, VoiceboxBase):
     """Hikari VoiceConnection using Songbird"""
+
+    @classmethod
+    async def connect(cls, client: GatewayBot, guild_id: snowflakes.Snowflake, channel_id: snowflakes.Snowflake):
+        return await client.voice.connect_to(
+            guild_id,
+            channel_id,
+            voice_connection_type=Voicebox
+        )
 
     @classmethod
     async def initialize(

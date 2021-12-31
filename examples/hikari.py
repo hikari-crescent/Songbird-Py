@@ -10,12 +10,7 @@ bot = hikari.GatewayBot("...")
 
 @bot.listen()
 async def ping(event: hikari.ShardReadyEvent) -> None:
-    voice = await bot.voice.connect_to(
-        # Both of the these can be `int` or `Snowflake`
-        YOUR_GUILD_ID,
-        YOUR_CHANNEL_ID,
-        voice_connection_type=Voicebox
-    )
+    voice = await Voicebox.connect(bot, YOUR_GUILD_ID, YOUR_CHANNEL_ID)
 
     track_handle = await voice.play_source(ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
 
