@@ -78,22 +78,24 @@ class Queue(list):
             if isinstance(next_player, Awaitable):
                 try:
                     next_player = await next_player
-                    break
                 except Exception as e:
                     _log.warning(
                         f"Failed to play song because of exception `{e}`."
                         " Skipping to next song."
                     )
+                    continue
 
-        if isinstance(next_player, Track):
-            self.current_track_handle = await self.driver.play(next_player)
-        elif isinstance(next_player, Source):
-            self.current_track_handle = await self.driver.play_source(next_player)
-        else:
-            raise Exception(
-                f"{next_player} is not a playable object. It must be of type 'Track' or"
-                " 'Source'"
-            )
+            if isinstance(next_player, Track):
+                self.current_track_handle = await self.driver.play(next_player)
+                break
+            elif isinstance(next_player, Source):
+                self.current_track_handle = await self.driver.play_source(next_player)
+                break
+            else:
+                raise Exception(
+                    f"{next_player} is not a playable object. It must be of type 'Track' or"
+                    " 'Source'"
+                )
 
     def skip(self):
         """Plays the next track in the queue"""
