@@ -1,4 +1,5 @@
-from typing import List
+from typing import Dict
+
 from pincer import Client
 from pincer.objects.app.intents import Intents
 from songbird import ytdl
@@ -8,8 +9,9 @@ token = "..."
 
 
 class Bot(Client):
+
     def __init__(self, token: str, intents: Intents = None):
-        self.voiceboxes: List[int, Voicebox] = {}
+        self.voiceboxes: Dict[int, Voicebox] = {}
         super().__init__(token, intents=intents)
 
     @Client.event
