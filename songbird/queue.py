@@ -3,8 +3,11 @@ from __future__ import annotations
 from asyncio import Event as AsyncEvent
 from asyncio.tasks import ensure_future
 from typing import Any, Awaitable, List, Optional, Union
+from logging import WARNING, Logger
 
 from .songbird import Driver, Event, Track, Source, TrackHandle
+
+_log = Logger(__name__)
 
 
 def extract_driver(driver: Any):
@@ -63,16 +66,24 @@ class Queue(list):
         if not self.running:
             return
 
-        if not self:
-            await self.item_added.wait()
-            self.item_added.clear()
+        while True:
+            if not self:
+                await self.item_added.wait()
+                self.item_added.clear()
 
-        next_player = self.pop(0)
+            next_player = self.pop(0)
 
-        # This allows players to be added to the queue without being activated immediatly
-        # helps save memory when adding an entire playlist.
-        if isinstance(next_player, Awaitable):
-            next_player = await next_player
+            # This allows players to be added to the queue without being activated
+            # immediatly helps save memory when adding an entire playlist.
+            if isinstance(next_player, Awaitable):
+                try:
+                    next_player = await next_player
+                    break
+                except Exception as e:
+                    _log.warning(
+                        f"Failed to play song because of exception `{e}`."
+                        " Skipping to next song."
+                    )
 
         if isinstance(next_player, Track):
             self.current_track_handle = await self.driver.play(next_player)

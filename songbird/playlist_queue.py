@@ -15,14 +15,14 @@ async def get_playlist(playlist: str) -> List[str]:
     out = []
     if stdout:
         out.extend(
-            WillBeYtdl(entry["url"])
+            YoutubeVideo(entry["url"])
             for entry in json.loads(stdout)["entries"]
         )
 
     return out
 
 
-class WillBeYtdl:
+class YoutubeVideo:
     def __init__(self, url: str) -> None:
         self.url = url
 
