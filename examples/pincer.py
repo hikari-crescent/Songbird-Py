@@ -24,9 +24,5 @@ class Bot(Client):
 
         await voice.play_source(await ytdl("https://www.youtube.com/watch?v=3Rl-Ty5jv8o"))
 
-    @Client.event
-    async def on_message(self, msg):
-        print(msg)
-
 
 Bot(token, intents=Intents.all()).run()
