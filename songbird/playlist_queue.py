@@ -2,12 +2,8 @@ from asyncio import create_subprocess_shell
 from asyncio.subprocess import PIPE
 import json
 from typing import List
-from random import shuffle
 
 from songbird.helpers import ytdl
-
-from .songbird import Driver, Track, Source
-from .queue import Queue
 
 
 async def get_playlist(playlist: str) -> List[str]:

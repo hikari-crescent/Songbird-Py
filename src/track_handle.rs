@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use pyo3::prelude::*;
+use songbird::input::Metadata;
 use songbird::tracks::{LoopState, PlayMode, TrackHandle, TrackResult, TrackState};
 use std::sync::Arc;
 
@@ -154,6 +155,24 @@ pub struct PyMetadata {
     thumbnail: Option<String>,
 }
 
+impl PyMetadata {
+    pub fn from(md: &Metadata) -> Self {
+        Self {
+            track: md.track.clone(),
+            artist: md.artist.clone(),
+            date: md.date.clone(),
+            channels: md.channels,
+            channel: md.channel.clone(),
+            start_time: unwrap_duration(md.start_time),
+            duration: unwrap_duration(md.duration),
+            sample_rate: md.sample_rate,
+            source_url: md.source_url.clone(),
+            title: md.title.clone(),
+            thumbnail: md.thumbnail.clone(),
+        }
+    }
+}
+
 #[pyclass(name = "TrackHandle")]
 pub struct PyTrackHandle {
     track_handle: Arc<TrackHandle>,
@@ -248,19 +267,6 @@ impl PyTrackHandle {
     }
     #[getter]
     fn metadata(&self) -> PyMetadata {
-        let md = &self.track_handle.metadata();
-        PyMetadata {
-            track: md.track.clone(),
-            artist: md.artist.clone(),
-            date: md.date.clone(),
-            channels: md.channels,
-            channel: md.channel.clone(),
-            start_time: unwrap_duration(md.start_time),
-            duration: unwrap_duration(md.duration),
-            sample_rate: md.sample_rate,
-            source_url: md.source_url.clone(),
-            title: md.title.clone(),
-            thumbnail: md.thumbnail.clone(),
-        }
+        PyMetadata::from(self.track_handle.metadata())
     }
 }

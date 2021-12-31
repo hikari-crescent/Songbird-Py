@@ -7,6 +7,7 @@ use pyo3::prelude::*;
 use songbird::input::{Input, Reader};
 
 use crate::exceptions::{ConsumedSourceError, CouldNotOpenFileError, FfmpegError, YtdlError};
+use crate::track_handle::PyMetadata;
 
 #[pyclass(name = "Source")]
 pub struct PySource {
@@ -92,6 +93,25 @@ impl PySource {
                 Ok(res) => Ok(Self::from(res)),
                 Err(err) => Err(FfmpegError::new_err(format!("{:?}", err))),
             }
+        })
+    }
+
+    /// Returns the Metadata for this source
+    fn metadata<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let source = self.source.clone();
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            let guard = source.lock().await;
+            Ok(PyMetadata::from(&guard.as_ref().unwrap().metadata))
+        })
+    }
+
+    /// Returns whether the souce is stereo
+    fn stereo<'p>(&'p self, py: Python<'p>) -> PyResult<&'p PyAny> {
+        let source = self.source.clone();
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            Ok(source.lock().await.as_ref().unwrap().stereo)
         })
     }
 }
