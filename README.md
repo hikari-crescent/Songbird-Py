@@ -26,7 +26,7 @@ track_handle.play()
 ```
 
 ### Supported Libraries
-Hikari is currently the only supported library. See the examples directory for more information.
+Hikari and Pincer are currently the only supported libraries. See the examples directory for more information.
 
 ### Using with your own Gateway
 ```python
