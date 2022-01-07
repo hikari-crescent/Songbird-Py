@@ -13,16 +13,15 @@ token = "..."
 class Bot(Client):
 
     def __init__(self, token: str, intents: Intents = None):
-        self.voiceboxes: Dict[int, Voicebox] = {}
+        self.queues: Dict[int, Queue] = {}
         super().__init__(token, intents=intents)
 
     @Client.event
     async def on_ready(self, shard):
         voice = await Voicebox.connect(self, shard, YOUR_GUILD_ID, YOUR_CHANNEL_ID)
 
-        self.voiceboxes[YOUR_GUILD_ID] = voice
+        self.queues[YOUR_GUILD_ID] = Queue(voice, on_fail=self.on_fail_to_play)
 
-        voice.q = Queue(voice, on_fail=self.on_fail_to_play)
 
     async def on_fail_to_play(self, driver: Driver, video: Any):
         # You can send a message to a user here or something

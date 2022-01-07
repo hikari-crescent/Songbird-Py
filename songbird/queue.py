@@ -97,6 +97,10 @@ class Queue(list):
         self.item_added.set()
         return super().__add__(__x)
 
+    def __iadd__(self: Queue, __x: Iterable[T]) -> Queue:
+        self.item_added.set()
+        return super().__iadd__(__x)
+
     async def _play_next(self, *args) -> None:
         """Internal method. Plays the next track in the queue"""
         if not self.running:
@@ -105,7 +109,8 @@ class Queue(list):
         while True:
             if not self:
                 await self.item_added.wait()
-                self.item_added.clear()
+
+            self.item_added.clear()
 
             next_player = self.pop(0)
 
@@ -143,4 +148,5 @@ class Queue(list):
             raise Exception("No track is playing")
 
         self.track_handle.stop()
+        self.track_handle = None
         ensure_future(self._play_next())
