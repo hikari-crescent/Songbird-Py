@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from asyncio import Event as AsyncEvent
 from asyncio.tasks import ensure_future
-from typing import Any, Awaitable, List, Optional, Union
+from typing import Any, Awaitable, Callable, Iterable, List, Optional, SupportsIndex, TypeVar, Union, Coroutine
 from logging import WARNING, Logger
 
 from .songbird import Driver, Event, Track, Source, TrackHandle
@@ -16,6 +16,9 @@ def extract_driver(driver: Any):
     return driver.driver
 
 
+T = TypeVar("T")
+
+
 class Queue(list):
     """
     Parameters
@@ -25,25 +28,42 @@ class Queue(list):
 
     Attributes
     ----------
-    current_track_handle : Optional[:class:`~songbird.songbird.TrackHandle`]
+    track_handle : Optional[:class:`~songbird.songbird.TrackHandle`]
         The TrackHandle for the currently playing song.
     running : bool
         If the Queue is running or not. This will be :data:`True` if the Queue isn't
         stopped.
+    on_next : Callable[[Driver, Any], Coroutine[:data:`None`]], default=None
+        Function called when the next song in the queue starts playing.
+    on_fail : Callable[[Driver, Any], Coroutine[:data:`None`]], default=None
+        Function called when a song failed to play.
     """
 
-    def __init__(self, driver: Driver) -> None:
+    def __init__(
+        self,
+        driver: Driver,
+        on_next: Callable[[Driver, Any], Coroutine[None]] = None,
+        on_fail: Callable[[Driver, Any], Coroutine[None]] = None
+    ) -> None:
         self.driver = extract_driver(driver)
-        self.current_track_handle: Optional[TrackHandle] = None
+        self.track_handle: Optional[TrackHandle] = None
         self.running = False
+
+        self.on_next = on_next
+        self.on_fail = on_fail
 
         self.item_added: AsyncEvent = AsyncEvent()
 
         ensure_future(self.start())
 
     @classmethod
-    def with_items(cls, driver: Driver, items: List[Union[Track, Source]]) -> Queue:
-        q = cls(driver)
+    def with_items(
+        cls,
+        driver: Driver,
+        items: List[Union[Track, Source]],
+        **kwargs,
+    ) -> Queue:
+        q = cls(driver, **kwargs)
         q.extend(items)
         return q
 
@@ -60,6 +80,22 @@ class Queue(list):
     async def stop(self) -> None:
         """Stops the queue from running. Does not stop the currently playing song."""
         self.running = False
+
+    def append(self, __object: T) -> None:
+        self.item_added.set()
+        return super().append(__object)
+
+    def extend(self, __iterable: Iterable[T]) -> None:
+        self.item_added.set()
+        return super().extend(__iterable)
+
+    async def insert(self, __index: SupportsIndex, __object: T) -> None:
+        self.item_added.set()
+        return super().insert(__index, __object)
+
+    def __add__(self, __x: list[T]) -> list[T]:
+        self.item_added.set()
+        return super().__add__(__x)
 
     async def _play_next(self, *args) -> None:
         """Internal method. Plays the next track in the queue"""
@@ -85,20 +121,26 @@ class Queue(list):
                         " Skipping to next song."
                     )
 
+                    if self.on_fail:
+                        ensure_future(self.on_fail(self.driver, next_player))
+
         if isinstance(next_player, Track):
-            self.current_track_handle = await self.driver.play(next_player)
+            self.track_handle = await self.driver.play(next_player)
         elif isinstance(next_player, Source):
-            self.current_track_handle = await self.driver.play_source(next_player)
+            self.track_handle = await self.driver.play_source(next_player)
         else:
             raise Exception(
                 f"{next_player} is not a playable object. It must be of type 'Track' or"
                 " 'Source'"
             )
 
+        if self.on_next:
+            self.on_next(self.driver, self.track_handle)
+
     def skip(self):
         """Plays the next track in the queue"""
-        if not self.current_track_handle:
+        if not self.track_handle:
             raise Exception("No track is playing")
 
-        self.current_track_handle.stop()
+        self.track_handle.stop()
         ensure_future(self._play_next())

@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use pyo3::basic::CompareOp;
+use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use songbird::input::Metadata;
 use songbird::tracks::{LoopState, PlayMode, TrackHandle, TrackResult, TrackState};
@@ -48,6 +50,23 @@ impl PyPlayMode {
     #[classattr]
     fn End() -> Self {
         Self::from(PlayMode::End)
+    }
+
+    fn __str__(&self) -> &str {
+        match self.play_mode {
+            PlayMode::Play => "<PlayMode.Play>",
+            PlayMode::Pause => "<PlayMode.Pause>",
+            PlayMode::Stop => "<PlayMode.Stop>",
+            PlayMode::End => "<PlayMode.End>",
+            _ => "<PlayMode.?????>",
+        }
+    }
+
+    fn __richcmp__(&self, other: Self, op: CompareOp) -> PyResult<PyObject> {
+        Python::with_gil(|py| match op {
+            CompareOp::Eq => PyResult::Ok((self.play_mode == other.play_mode).into_py(py)),
+            _ => PyResult::Err(PyTypeError::new_err("Only __eq__ is implemented for this type")),
+        })
     }
 }
 
@@ -204,7 +223,7 @@ impl PyMetadata {
             duration,
             sample_rate,
             thumbnail,
-            title
+            title,
         }
     }
 }

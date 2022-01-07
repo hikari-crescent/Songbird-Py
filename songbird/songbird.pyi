@@ -120,6 +120,8 @@ class PlayMode:
     Stop: PlayMode
     End: PlayMode
 
+    def __eq__() -> bool: ...
+
 class Metadata:
     track: Optional[str]
     artist: Optional[str]
