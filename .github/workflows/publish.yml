@@ -12,8 +12,19 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get -y install libopus-dev
+    - name: Make sdist
+    - uses: messense/maturin-action@v1
+      with:
+        command: sdist
+        args: -o dist
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: sdist
+        path: dist
+
     - uses: actions/checkout@v2
-    - uses: messense/maturin-action@v1\
+    - uses: messense/maturin-action@v1
       with:
         manylinux: auto
         command: build
@@ -63,6 +74,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: wheels
+          name: sdist
       - name: Publish to PyPI
         uses: messense/maturin-action@v1
         env:
