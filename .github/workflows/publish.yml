@@ -13,7 +13,7 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install libopus-dev
     - uses: actions/checkout@v2
-    - uses: messense/maturin-action@v1
+    - uses: messense/maturin-action@v1\
       with:
         manylinux: auto
         command: build
@@ -41,6 +41,8 @@ jobs:
   macos:
     runs-on: macos-latest
     steps:
+    - name: Install Opus
+      run: brew install opus
     - uses: actions/checkout@v2
     - uses: messense/maturin-action@v1
       with:
