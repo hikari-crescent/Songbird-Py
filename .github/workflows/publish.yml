@@ -19,7 +19,7 @@ jobs:
       with:
         command: sdist
         args: -o dist
-    - name: Upload wheels
+    - name: Upload sdist
       uses: actions/upload-artifact@v2
       with:
         name: sdist
@@ -52,8 +52,8 @@ jobs:
   macos:
     runs-on: macos-latest
     steps:
-    - name: Install Opus
-      run: brew install opus
+    - name: Install Automake
+      run: brew install automake
     - uses: actions/checkout@v2
     - uses: messense/maturin-action@v1
       with:
