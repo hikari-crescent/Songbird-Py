@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Make sdist
-    - uses: messense/maturin-action@v1
+      uses: messense/maturin-action@v1
       with:
         command: sdist
         args: -o dist
