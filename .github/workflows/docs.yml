@@ -1,118 +1,55 @@
-# Taken from https://github.com/vicky5124/lavasnek_rs/blob/master/.github/workflows/release.yml
-
-name: Release to to PyPi and GitHub
-
-on:
-  push:
-    tags:
-      - "*"
+name: Docs
+# on: [push, release]
 
 jobs:
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }} - ${{ matrix.vers }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # - vers: i686
-          #   os: ubuntu-20.04
-          # - vers: aarch64
-          #   os: ubuntu-20.04
-          # - vers: auto64
-          #   os: ubuntu-20.04
-          - vers: arm64
-            os: macos-10.15
-          - vers: auto64
-            os: macos-10.15
-          - vers: auto64
-            os: windows-2019
-
-    env:
-      SCCACHE_VERSION: 0.2.13
-      CIBW_BEFORE_ALL_LINUX: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
-      CIBW_BUILD_VERBOSITY: "1" # Make some more noise to not stall, and extra debugging.
-      CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
-      CIBW_SKIP: "cp27-* cp34-* cp35-* pp* *-win32"
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: "3.8"
-
-      - name: Set up QEMU
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v1
-        with:
-          platforms: all
-
-      - name: wheels Linux ${{ matrix.vers }}
-        if: runner.os == 'Linux'
-        uses: joerick/cibuildwheel@v1.12.0
-        env:
-          CIBW_ARCHS_LINUX: ${{ matrix.vers }}
-
-      - name: wheels Macos ${{ matrix.vers }}
-        if: runner.os == 'Macos'
-        uses: joerick/cibuildwheel@v2.2.2
-        env:
-          CIBW_ARCHS_MACOS: ${{ matrix.vers }}
-
-      - name: wheels Windows ${{ matrix.vers }}
-        if: runner.os == 'Windows'
-        uses: joerick/cibuildwheel@v2.2.2
-        env:
-          CIBW_ARCHS_WINDOWS: ${{ matrix.vers }}
-
-      - uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
-
-  build_sdist:
-    name: Build source distribution
+  notebooks:
+    name: "Build the docs"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install rust
+      - name: Set up Python and Rust
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install libopus-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install libopus-dev
+
+      - name: Install toolchain
+        id: tc
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           profile: minimal
+          override: true
 
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: "3.8"
-
-      - name: Build sdist
+      # - uses: messense/maturin-action@v1
+      #   with:
+      #     maturin-version: latest
+      #     command: develop
+      - name: Maturin
         run: |
-          python -m pip install setuptools-rust setuptools wheel
-          python setup.py sdist
+          python -m pip install maturin
+          python -m venv venv
+          source venv/bin/activate
+          maturin develop
+
+      - name: Install doc dependencies
+        run: |
+          python -m pip install -U pip
+          python -m pip install -r docs/requirements.txt
+
       - uses: actions/upload-artifact@v2
         with:
-          path: dist/*.tar.gz
+          name: so-for-${{ github.sha }}
+          path: songbird
 
-  release:
-    needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v2
+      - name: Trigger RTDs build
+        uses: dfm/rtds-action@v1
         with:
-          name: artifact
-          path: dist
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: target/wheels/lavasnek_rs*.whl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
+          webhook_url: ${{ secrets.RTDS_WEBHOOK_URL }}
+          webhook_token: ${{ secrets.RTDS_WEBHOOK_TOKEN }}
+          commit_ref: ${{ github.ref }}

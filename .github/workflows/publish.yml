@@ -1,97 +1,118 @@
-name: CI
+# Taken from https://github.com/vicky5124/lavasnek_rs/blob/master/.github/workflows/release.yml
+
+name: Release to to PyPi and GitHub
 
 on:
   push:
-  pull_request:
+    tags:
+      - "*"
 
 jobs:
-  linux:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }} - ${{ matrix.vers }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # - vers: i686
+          #   os: ubuntu-20.04
+          # - vers: aarch64
+          #   os: ubuntu-20.04
+          # - vers: auto64
+          #   os: ubuntu-20.04
+          - vers: arm64
+            os: macos-10.15
+          - vers: auto64
+            os: macos-10.15
+          - vers: auto64
+            os: windows-2019
+
+    env:
+      SCCACHE_VERSION: 0.2.13
+      CIBW_BEFORE_ALL_LINUX: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y"
+      CIBW_BUILD_VERBOSITY: "1" # Make some more noise to not stall, and extra debugging.
+      CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
+      CIBW_SKIP: "cp27-* cp34-* cp35-* pp* *-win32"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: "3.8"
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+
+      - name: wheels Linux ${{ matrix.vers }}
+        if: runner.os == 'Linux'
+        uses: joerick/cibuildwheel@v1.12.0
+        env:
+          CIBW_ARCHS_LINUX: ${{ matrix.vers }}
+
+      - name: wheels Macos ${{ matrix.vers }}
+        if: runner.os == 'Macos'
+        uses: joerick/cibuildwheel@v2.2.2
+        env:
+          CIBW_ARCHS_MACOS: ${{ matrix.vers }}
+
+      - name: wheels Windows ${{ matrix.vers }}
+        if: runner.os == 'Windows'
+        uses: joerick/cibuildwheel@v2.2.2
+        env:
+          CIBW_ARCHS_WINDOWS: ${{ matrix.vers }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-    - name: Install libopus-dev
-      run: |
-        sudo apt-get update
-        sudo apt-get -y install libopus-dev
-    - uses: actions/checkout@v2
-    - name: Install Rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
-        default: true
-    - name: Make sdist
-      uses: messense/maturin-action@v1
-      with:
-        command: sdist
-        args: -o dist
-    - name: Upload sdist
-      uses: actions/upload-artifact@v2
-      with:
-        name: sdist
-        path: dist
-    - uses: messense/maturin-action@v1
-      with:
-        manylinux: auto
-        command: build
-        args: --release -o dist
-    - name: Upload wheels
-      uses: actions/upload-artifact@v2
-      with:
-        name: wheels
-        path: dist
+      - uses: actions/checkout@v2
 
-  windows:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: messense/maturin-action@v1
-      with:
-        command: build
-        args: --release --no-sdist -o dist
-    - name: Upload wheels
-      uses: actions/upload-artifact@v2
-      with:
-        name: wheels
-        path: dist
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
 
-  macos:
-    runs-on: macos-latest
-    steps:
-    - name: Install Automake
-      run: brew install automake
-    - name: Install Rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
-        default: true
-    - uses: actions/checkout@v2
-    - uses: messense/maturin-action@v1
-      with:
-        command: build
-        args: --release --no-sdist -o dist --universal2
-    - name: Upload wheels
-      uses: actions/upload-artifact@v2
-      with:
-        name: wheels
-        path: dist
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: "3.8"
+
+      - name: Build sdist
+        run: |
+          python -m pip install setuptools-rust setuptools wheel
+          python setup.py sdist
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
 
   release:
-    name: Release
+    needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ macos, windows, linux ]
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: wheels
-      - uses: actions/download-artifact@v2
+          name: artifact
+          path: dist
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: sdist
-      - name: Publish to PyPI
-        uses: messense/maturin-action@v1
+          files: target/wheels/lavasnek_rs*.whl
         env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pypa/gh-action-pypi-publish@master
         with:
-          command: upload
-          args: --skip-existing *
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
