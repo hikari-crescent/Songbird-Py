@@ -12,6 +12,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get -y install libopus-dev
+    - uses: actions/checkout@v2
+
     - name: Make sdist
     - uses: messense/maturin-action@v1
       with:
@@ -22,8 +24,6 @@ jobs:
       with:
         name: sdist
         path: dist
-
-    - uses: actions/checkout@v2
     - uses: messense/maturin-action@v1
       with:
         manylinux: auto
