@@ -24,6 +24,12 @@ jobs:
       with:
         name: sdist
         path: dist
+    - name: Set up QEMU
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+      with:
+        image: tonistiigi/binfmt:latest
+        platforms: all
     - uses: messense/maturin-action@v1
       with:
         manylinux: auto
@@ -52,6 +58,12 @@ jobs:
   macos:
     runs-on: macos-latest
     steps:
+    - name: Set up QEMU
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+      with:
+        image: tonistiigi/binfmt:latest
+        platforms: all
     - name: Install Automake
       run: brew install automake
     - uses: actions/checkout@v2
