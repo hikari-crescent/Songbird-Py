@@ -33,5 +33,7 @@ Find Stuff Here
    :caption: Contents:
 
    hikari
+   pincer
    queue
+   exceptions
    songbird

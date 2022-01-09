@@ -5,6 +5,8 @@ from asyncio.tasks import ensure_future
 from typing import Any, Awaitable, Callable, Iterable, List, Optional, SupportsIndex, TypeVar, Union, Coroutine
 from logging import WARNING, Logger
 
+from songbird.exceptions import QueueError
+
 from .songbird import Driver, Event, Track, Source, TrackHandle
 
 _log = Logger(__name__)
@@ -134,7 +136,7 @@ class Queue(list):
         elif isinstance(next_player, Source):
             self.track_handle = await self.driver.play_source(next_player)
         else:
-            raise Exception(
+            raise QueueError(
                 f"{next_player} is not a playable object. It must be of type 'Track' or"
                 " 'Source'"
             )
@@ -145,7 +147,7 @@ class Queue(list):
     def skip(self):
         """Plays the next track in the queue"""
         if not self.track_handle:
-            raise Exception("No track is playing")
+            raise QueueError("No track is playing")
 
         self.track_handle.stop()
         self.track_handle = None
