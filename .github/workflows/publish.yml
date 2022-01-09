@@ -4,19 +4,30 @@ name: Release to to PyPi and GitHub
 
 on:
   push:
-    tags:
-      - "*"
+    # tags:
+    #   - "*"
 
 jobs:
   build_manylinux:
     name: Build manylinux wheels
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10]
     steps:
       - uses: actions/checkout@v2
       - name: Install libopus-dev
         run: |
           sudo apt update
           sudo apt -y install libopus-dev
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
       - uses: messense/maturin-action@v1
         with:
           maturin-version: latest
