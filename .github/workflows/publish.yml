@@ -21,7 +21,7 @@ jobs:
         with:
           maturin-version: latest
           command: build
-          args: --release
+          args: --release -o dist
       - uses: actions/upload-artifact@v2
         with:
           path: dist/*.whl
