@@ -4,10 +4,27 @@ name: Release to to PyPi and GitHub
 
 on:
   push:
-    tags:
-      - "*"
+    # tags:
+    #   - "*"
 
 jobs:
+  build_manylinux:
+    name: Build manylinux wheels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install libopus-dev
+        run: |
+          sudo apt update
+          sudo apt -y install libopus-dev
+      - uses: messense/maturin-action@v1
+        with:
+          maturin-version: latest
+          command: build
+          args: --release
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.whl
+
   build_wheels:
     name: Build wheels on ${{ matrix.os }} - ${{ matrix.vers }}
     runs-on: ${{ matrix.os }}
@@ -97,7 +114,7 @@ jobs:
           path: dist/*.tar.gz
 
   release:
-    needs: [build_wheels, build_sdist]
+    needs: [build_manylinux, build_wheels, build_sdist]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
