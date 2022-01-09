@@ -1,12 +1,29 @@
 [build-system]
-requires = ["maturin>=0.12,<0.13"]
+version = "0.1.1"
 build-backend = "maturin"
+description = "A Discord voice library using Python Songbird bindings."
+requires = ["maturin>=0.12,<0.13"]
 
 [project]
+classifiers = [
+  "Programming Language :: Rust",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+  "Operating System :: OS Independent",
+]
+dependencies = ["yt-dlp==2021.12.1"]
 name = "songbird-py"
 requires-python = ">=3.8"
-classifiers = [
-    "Programming Language :: Rust",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
-]
+
+[project.optional-dependencies]
+hikari = ["hikari"]
+pincer = ["pincer"]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/Lunarmagpie/Songbird-Py/issues"
+Docs = "https://songbird-py.readthedocs.io/en/latest/"
+GitHub = "https://github.com/Lunarmagpie/Songbird-Py"
+
+[tool.maturin]
+sdist-include = ["songbird/*.pyi"]
