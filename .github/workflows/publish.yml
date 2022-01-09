@@ -113,7 +113,7 @@ jobs:
           profile: minimal
 
       - name: Build sdist
-      - uses: messense/maturin-action@v1
+        uses: messense/maturin-action@v1
         with:
           maturin-version: latest
           command: sdist
