@@ -5,8 +5,10 @@ Its written with rust-bindings to [Songbird](https://github.com/serenity-rs/song
 [Songbird-py Docs](https://songbird-py.readthedocs.io/en/latest/)
 
 ## Dependencies
-[Rust](https://www.rust-lang.org/tools/install) will need to be installed to build the project (this happens automatically when you install it from pip!). Currently there are no prebuilt-binaries.
 This library requires [Opus](https://www.opus-codec.org/) to be installed. `ffmpeg` functions also require [FFmpeg](https://ffmpeg.org/) to be installed.
+
+### Building Source Dist
+If you are not on windows, macos, or linux x86_64 or need to use a version of python different than 3.8-3.10 you will need to build the source dist. The only change to the installation process is that [Rust](https://www.rust-lang.org/tools/install) will need to be installed before installing from pip.
 
 ### Playing a Song
 Once you are connected to a channel, playing music is extremely easy.
@@ -70,9 +72,6 @@ Run command `maturin develop` when changes are made to the Rust src.
 [docs](https://serenity-rs.github.io/songbird/current/songbird/index.html)
 
 Its a good idea to install all the dependencies.
-
-## What should you run to test your changes?
-I recommend working off of the `hikari` example. Make sure to run `maturin develop` when anything is changed!
 
 ## Goal of the project
 Create API for songbird [driver](https://serenity-rs.github.io/songbird/current/songbird/driver/struct.Driver.html) and everything that is needed with it it.
