@@ -12,6 +12,7 @@ jobs:
     name: Build manylinux wheels
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Install libopus-dev
         run: |
           sudo apt update
