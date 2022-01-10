@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from asyncio import Event as AsyncEvent
 from asyncio.tasks import ensure_future
-from typing import Any, Awaitable, Callable, Iterable, List, Optional, SupportsIndex, TypeVar, Union, Coroutine
+from typing import Any, Awaitable, Callable, Iterable, List, Optional, SupportsIndex, TypeVar, Union
 from logging import WARNING, Logger
 
 from songbird.exceptions import QueueError
@@ -35,17 +35,17 @@ class Queue(list):
     running : bool
         If the Queue is running or not. This will be :data:`True` if the Queue isn't
         stopped.
-    on_next : Callable[[Driver, Any], Coroutine[:data:`None`]], default=None
+    on_next : Callable[[Driver, Any], Awaitable[:data:`None`]], default=None
         Function called when the next song in the queue starts playing.
-    on_fail : Callable[[Driver, Any], Coroutine[:data:`None`]], default=None
+    on_fail : Callable[[Driver, Any], Awaitable[:data:`None`]], default=None
         Function called when a song failed to play.
     """
 
     def __init__(
         self,
         driver: Driver,
-        on_next: Callable[[Driver, Any], Coroutine[None]] = None,
-        on_fail: Callable[[Driver, Any], Coroutine[None]] = None
+        on_next: Callable[[Driver, Any], Awaitable[None]] = None,
+        on_fail: Callable[[Driver, Any], Awaitable[None]] = None
     ) -> None:
         self.driver = extract_driver(driver)
         self.track_handle: Optional[TrackHandle] = None
@@ -91,7 +91,7 @@ class Queue(list):
         self.item_added.set()
         return super().extend(__iterable)
 
-    async def insert(self, __index: SupportsIndex, __object: T) -> None:
+    def insert(self, __index: SupportsIndex, __object: T) -> None:
         self.item_added.set()
         return super().insert(__index, __object)
 

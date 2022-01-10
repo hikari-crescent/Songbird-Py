@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+
 from __future__ import annotations
 
 from typing import Callable, Awaitable, Any
@@ -9,11 +11,11 @@ from .songbird import Driver
 from .voicebox_base import VoiceboxBase
 
 
-class Voicebox(VoiceConnection, VoiceboxBase):
+class Voicebox(VoiceboxBase, VoiceConnection):
     """Hikari VoiceConnection using Songbird"""
 
     @classmethod
-    async def connect(cls, client: GatewayBot, guild_id: snowflakes.Snowflake, channel_id: snowflakes.Snowflake):
+    async def connect(cls, client: GatewayBot, guild_id: snowflakes.Snowflake, channel_id: snowflakes.Snowflake) -> Voicebox:
         return await client.voice.connect_to(
             guild_id,
             channel_id,

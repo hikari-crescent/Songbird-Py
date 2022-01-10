@@ -29,7 +29,7 @@ class Voicebox(VoiceboxBase):
 
         state, server = await gather(
             client.wait_for(
-                "on_voice_state_update", check=lambda state: state.user_id == client.bot.id and state.guild_id == guild_id
+                "on_voice_state_update", check=lambda state: state.user_id == client.bot.id and state.guild_id == guild_id  # type: ignore
             ),
             client.wait_for(
                 "on_voice_server_update", check=lambda server: server.guild_id == guild_id

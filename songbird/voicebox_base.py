@@ -26,13 +26,13 @@ class VoiceboxBase:
     async def play_source(self, source: Source) -> TrackHandle:
         return await self.driver.play_source(source)
 
-    async def play_only_source(self, source: Track) -> TrackHandle:
+    async def play_only_source(self, source: Source) -> TrackHandle:
         return await self.driver.play_only_source(source)
 
-    async def play(self, track: Track) -> None:
+    async def play(self, track: Track) -> TrackHandle:
         return await self.driver.play(track)
 
-    async def play_only(self, track: Track) -> None:
+    async def play_only(self, track: Track) -> TrackHandle:
         return await self.driver.play_only(track)
 
     async def set_bitrate(self, bitrate: int) -> None:
