@@ -8,7 +8,8 @@ __all__ = (
     "FfmpegError",
     "YtdlError",
     "ConsumedSourceError",
-    "UseAsyncConstructorError"
+    "UseAsyncConstructorError",
+    "QueueError"
 )
 
 class QueueError(SongbirdError):
