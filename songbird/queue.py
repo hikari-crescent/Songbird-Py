@@ -130,6 +130,8 @@ class Queue(list):
 
                     if self.on_fail:
                         ensure_future(self.on_fail(self.driver, next_player))
+            else:
+                break
 
         if isinstance(next_player, Track):
             self.track_handle = await self.driver.play(next_player)
