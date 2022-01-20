@@ -31,7 +31,7 @@ class YoutubeVideo:
             duration=video.get("duration"),
             source_url=video.get("url"),
             title=video.get("title"),
-            thumbnail=video["thumbnails"][0]["url"]
+            thumbnail=video.get("thumbnails", [{"url": None}])[0]["url"]
         )
 
     def __await__(self):

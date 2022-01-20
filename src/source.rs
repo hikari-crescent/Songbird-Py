@@ -4,6 +4,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use pyo3::prelude::*;
+use pyo3::types::{PyDict, PyString};
 use songbird::input::{Input, Reader};
 
 use crate::exceptions::{ConsumedSourceError, CouldNotOpenFileError, FfmpegError, YtdlError};
@@ -42,6 +43,19 @@ impl PySource {
     pub fn mark_consumed(&mut self) -> () {
         self.consumed = true
     }
+}
+
+fn map_args<'a>(value: Option<&'a PyAny>) -> Result<Vec<String>, PyErr> {
+    if value.is_none() {
+        return Ok(vec![]);
+    };
+    let items = value.unwrap().downcast::<PyString>()?;
+    let items = items.to_string();
+
+    Ok(items
+        .split_whitespace()
+        .map(|x| x.to_string())
+        .collect::<Vec<String>>())
 }
 
 #[pymethods]
@@ -87,9 +101,35 @@ impl PySource {
     ///
     ///     await driver.play(Source.ffmpeg("song.mp3"))
     #[staticmethod]
-    fn ffmpeg<'p>(py: Python, filepath: String) -> PyResult<&PyAny> {
+    #[args(kwargs = "**")]
+    fn ffmpeg<'a, 'p>(
+        py: Python<'p>,
+        filepath: String,
+        kwargs: Option<&'a PyDict>,
+    ) -> PyResult<&'p PyAny> {
+        let pre_input_args: Vec<String>;
+        let args: Vec<String>;
+
+        if let Some(kwargs) = kwargs {
+            let _pre_input_args = kwargs.get_item("pre_input_args");
+            let _args = kwargs.get_item("args");
+
+            pre_input_args = map_args(_pre_input_args)?;
+            args = map_args(_args)?;
+        } else {
+            pre_input_args = vec![];
+            args = vec![];
+        };
+
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            match songbird::ffmpeg(filepath).await {
+            let pre_input_args: Vec<&str> = pre_input_args.iter().map(String::as_str).collect();
+            let args: Vec<&str> = args.iter().map(String::as_str).collect();
+
+            match if pre_input_args.is_empty() && args.is_empty() {
+                songbird::ffmpeg(filepath).await
+            } else {
+                songbird::input::ffmpeg_optioned(filepath, &pre_input_args[..], &args[..]).await
+            } {
                 Ok(res) => Ok(Self::from(res)),
                 Err(err) => Err(FfmpegError::new_err(format!("{:?}", err))),
             }
