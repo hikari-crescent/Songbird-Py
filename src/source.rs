@@ -128,7 +128,7 @@ impl PySource {
             match if pre_input_args.is_empty() && args.is_empty() {
                 songbird::ffmpeg(filepath).await
             } else {
-                songbird::input::ffmpeg_optioned(filepath, &pre_input_args[..], &args[..]).await
+                songbird::input::ffmpeg_optioned(filepath, pre_input_args.as_ref(), args.as_ref()).await
             } {
                 Ok(res) => Ok(Self::from(res)),
                 Err(err) => Err(FfmpegError::new_err(format!("{:?}", err))),
