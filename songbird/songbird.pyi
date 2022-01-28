@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any, Callable, List, Optional, Tuple
-from dataclasses import dataclass
 
 
 class SongbirdError(Exception):
@@ -61,8 +60,11 @@ class Driver:
 class Source:
     @staticmethod
     def bytes(bytes: bytes, stereo: bool) -> Source: ...
+
     @staticmethod
-    async def ffmpeg(filename: str, pre_input_args=None, args=None) -> Source: ...
+    async def ffmpeg(filename: str, pre_input_args=None,
+                     args=None) -> Source: ...
+
     @staticmethod
     async def ytdl(url: str) -> Source: ...
     @staticmethod
@@ -155,7 +157,6 @@ class PlayMode:
     def __eq__(self, object: Any) -> bool: ...
 
 
-@dataclass
 class Metadata:
     track: Optional[str] = None
     artist: Optional[str] = None
@@ -168,6 +169,21 @@ class Metadata:
     source_url: Optional[str] = None
     title: Optional[str] = None
     thumbnail: Optional[str] = None
+
+    def __init__(
+        track: Optional[str] = None,
+        artist: Optional[str] = None,
+        date: Optional[str] = None,
+        channels: Optional[int] = None,
+        channel: Optional[str] = None,
+        start_time: Optional[float] = None,
+        duration: Optional[float] = None,
+        sample_rate: Optional[int] = None,
+        source_url: Optional[str] = None,
+        title: Optional[str] = None,
+        thumbnail: Optional[str] = None,
+    ):
+        ...
 
 
 class LoopCount:
@@ -274,6 +290,7 @@ class VoiceData:
     payload_offset: int
     payload_end_pad: int
 
+
 class Rtp:
     version: int
     padding: int
@@ -285,6 +302,7 @@ class Rtp:
     ssrc: int
     csrc_list: List[int]
     payload: List[int]
+
 
 class RtpType:
     Pcmu: RtpType
