@@ -1,15 +1,18 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use pyo3::exceptions::PyNotImplementedError;
+use pyo3::basic::CompareOp;
+use pyo3::exceptions::{PyNotImplementedError, PyTypeError};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use songbird::events::context_data::{ConnectData, DisconnectKind, DisconnectReason};
+use songbird::events::context_data::{ConnectData, DisconnectKind, DisconnectReason, VoiceData};
 use songbird::model::SpeakingState;
 use songbird::{CoreEvent, Event, EventContext, EventHandler, TrackEvent};
 
 use crate::track_handle::{PyTrackHandle, PyTrackState};
 use crate::utils::unwrap_f64_to_duration;
+
+use discortp::rtp::{Rtp, RtpType};
 
 #[derive(Clone)]
 pub struct EventHanlder {
@@ -79,6 +82,7 @@ fn event_to_py(py: Python, event: &EventContext) -> PyResult<PyObject> {
             },
         }
         .into_py(py)),
+        EventContext::VoicePacket(data) => Ok(PyVoiceData::from(data).into_py(py)),
         EventContext::SpeakingUpdate(data) => Ok(PySpeakingUpdateData {
             speaking: data.speaking,
             ssrc: data.ssrc,
