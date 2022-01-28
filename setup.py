@@ -12,7 +12,7 @@ setup(
     data_files=[
         "songbird/songbird.pyi"
     ],
-    version="0.0.3",
+    version="0.1.4",
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Rust",
