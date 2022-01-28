@@ -269,7 +269,6 @@ pub struct PySpeaking {
     user_id: Option<u64>,
 }
 
-#[allow(dead_code)]
 #[pyclass(name = "RtpType")]
 #[derive(Clone)]
 pub struct PyRtpType {
