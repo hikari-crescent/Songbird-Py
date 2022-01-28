@@ -48,6 +48,9 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<event::PyConnectData>()?;
     m.add_class::<event::PyDisconnectKind>()?;
     m.add_class::<event::PyDisconnectReason>()?;
+    m.add_class::<event::PyVoiceData>()?;
+    m.add_class::<event::PyRtp>()?;
+    m.add_class::<event::PyRtpType>()?;
 
     m.add("ConsumedSourceError", py.get_type::<ConsumedSourceError>())?;
     m.add(

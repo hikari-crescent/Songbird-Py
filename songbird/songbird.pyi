@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 from dataclasses import dataclass
 
 
@@ -266,3 +266,83 @@ class DisconnectReason:
     ProtocolViolation: DisconnectReason
     TimedOut: DisconnectReason
     WsClosed: DisconnectReason
+
+
+class VoiceData:
+    audio: Optional[List[int]]
+    packet: Rtp
+    payload_offset: int
+    payload_end_pad: int
+
+class Rtp:
+    version: int
+    padding: int
+    extension: int
+    csrc_count: int
+    payload_type: RtpType
+    sequence: int
+    timestamp: int
+    ssrc: int
+    csrc_list: List[int]
+    payload: List[int]
+
+class RtpType:
+    Pcmu: RtpType
+    Gsm: RtpType
+    G723: RtpType
+    Dvi4_1: RtpType
+    Dvi4_2: RtpType
+    Dvi4_3: RtpType
+    Dvi4_4: RtpType
+    Dvi4_5: RtpType
+    Dvi4_6: RtpType
+    Dvi4_7: RtpType
+    Dvi4_8: RtpType
+    Lpc: RtpType
+    Pcma: RtpType
+    G722: RtpType
+    L16Stereo: RtpType
+    L16Mono: RtpType
+    Qcelp: RtpType
+    Cn: RtpType
+    Mpa: RtpType
+    G728: RtpType
+    G729: RtpType
+    CelB: RtpType
+    Jpeg: RtpType
+    Nv: RtpType
+    Mpv: RtpType
+    Mp2t: RtpType
+    H263: RtpType
+    Dynamic_1: RtpType
+    Dynamic_2: RtpType
+    Dynamic_3: RtpType
+    Dynamic_4: RtpType
+    Dynamic_5: RtpType
+    Dynamic_6: RtpType
+    Dynamic_7: RtpType
+    Dynamic_8: RtpType
+    Reserved_1: RtpType
+    Reserved_2: RtpType
+    Reserved_3: RtpType
+    Reserved_4: RtpType
+    Reserved_5: RtpType
+    Reserved_6: RtpType
+    Reserved_7: RtpType
+    Reserved_8: RtpType
+    Unassigned_1: RtpType
+    Unassigned_2: RtpType
+    Unassigned_3: RtpType
+    Unassigned_4: RtpType
+    Unassigned_5: RtpType
+    Unassigned_6: RtpType
+    Unassigned_7: RtpType
+    Unassigned_8: RtpType
+    Illegal_1: RtpType
+    Illegal_2: RtpType
+    Illegal_3: RtpType
+    Illegal_4: RtpType
+    Illegal_5: RtpType
+    Illegal_6: RtpType
+    Illegal_7: RtpType
+    Illegal_8: RtpType
