@@ -205,6 +205,7 @@ class Event:
     DriverConnect: Event
     DriverReconnect: Event
     DriverDisconnect: Event
+    VoicePacket: Event
 
     def periodic(self, duration: float,
                  phase: Optional[float] = None) -> Event: ...

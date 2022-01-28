@@ -1,15 +1,18 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use pyo3::exceptions::PyNotImplementedError;
+use pyo3::basic::CompareOp;
+use pyo3::exceptions::{PyNotImplementedError, PyTypeError};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use songbird::events::context_data::{ConnectData, DisconnectKind, DisconnectReason};
+use songbird::events::context_data::{ConnectData, DisconnectKind, DisconnectReason, VoiceData};
 use songbird::model::SpeakingState;
 use songbird::{CoreEvent, Event, EventContext, EventHandler, TrackEvent};
 
 use crate::track_handle::{PyTrackHandle, PyTrackState};
 use crate::utils::unwrap_f64_to_duration;
+
+use discortp::rtp::{Rtp, RtpType};
 
 #[derive(Clone)]
 pub struct EventHanlder {
@@ -79,6 +82,7 @@ fn event_to_py(py: Python, event: &EventContext) -> PyResult<PyObject> {
             },
         }
         .into_py(py)),
+        EventContext::VoicePacket(data) => Ok(PyVoiceData::from(data).into_py(py)),
         EventContext::SpeakingUpdate(data) => Ok(PySpeakingUpdateData {
             speaking: data.speaking,
             ssrc: data.ssrc,
@@ -263,6 +267,372 @@ pub struct PySpeaking {
     ssrc: u32,
     #[pyo3(get)]
     user_id: Option<u64>,
+}
+
+#[pyclass(name = "RtpType")]
+#[derive(Clone)]
+pub struct PyRtpType {
+    rtptype: RtpType,
+}
+
+/// The current state of the track. ie. Paused/Unpaused.
+impl PyRtpType {
+    pub fn from(rtptype: RtpType) -> Self {
+        Self { rtptype }
+    }
+}
+
+#[allow(non_snake_case)]
+#[pymethods]
+impl PyRtpType {
+    #[classattr]
+    fn Pcmu() -> Self {
+        Self::from(RtpType::Pcmu)
+    }
+    #[classattr]
+    fn Gsm() -> Self {
+        Self::from(RtpType::Gsm)
+    }
+    #[classattr]
+    fn G723() -> Self {
+        Self::from(RtpType::G723)
+    }
+    #[classattr]
+    fn Dvi4_1() -> Self {
+        Self::from(RtpType::Dvi4(1))
+    }
+    #[classattr]
+    fn Dvi4_2() -> Self {
+        Self::from(RtpType::Dvi4(2))
+    }
+    #[classattr]
+    fn Dvi4_3() -> Self {
+        Self::from(RtpType::Dvi4(3))
+    }
+    #[classattr]
+    fn Dvi4_4() -> Self {
+        Self::from(RtpType::Dvi4(4))
+    }
+    #[classattr]
+    fn Dvi4_5() -> Self {
+        Self::from(RtpType::Dvi4(5))
+    }
+    #[classattr]
+    fn Dvi4_6() -> Self {
+        Self::from(RtpType::Dvi4(6))
+    }
+    #[classattr]
+    fn Dvi4_7() -> Self {
+        Self::from(RtpType::Dvi4(7))
+    }
+    #[classattr]
+    fn Dvi4_8() -> Self {
+        Self::from(RtpType::Dvi4(8))
+    }
+    #[classattr]
+    fn Lpc() -> Self {
+        Self::from(RtpType::Lpc)
+    }
+    #[classattr]
+    fn Pcma() -> Self {
+        Self::from(RtpType::Pcma)
+    }
+    #[classattr]
+    fn G722() -> Self {
+        Self::from(RtpType::G722)
+    }
+    #[classattr]
+    fn L16Stereo() -> Self {
+        Self::from(RtpType::L16Stereo)
+    }
+    #[classattr]
+    fn L16Mono() -> Self {
+        Self::from(RtpType::L16Mono)
+    }
+    #[classattr]
+    fn Qcelp() -> Self {
+        Self::from(RtpType::Qcelp)
+    }
+    #[classattr]
+    fn Cn() -> Self {
+        Self::from(RtpType::Cn)
+    }
+    #[classattr]
+    fn Mpa() -> Self {
+        Self::from(RtpType::Mpa)
+    }
+    #[classattr]
+    fn G728() -> Self {
+        Self::from(RtpType::G728)
+    }
+    #[classattr]
+    fn G729() -> Self {
+        Self::from(RtpType::G729)
+    }
+    #[classattr]
+    fn CelB() -> Self {
+        Self::from(RtpType::CelB)
+    }
+    #[classattr]
+    fn Jpeg() -> Self {
+        Self::from(RtpType::Jpeg)
+    }
+    #[classattr]
+    fn Nv() -> Self {
+        Self::from(RtpType::Nv)
+    }
+    #[classattr]
+    fn H261() -> Self {
+        Self::from(RtpType::H261)
+    }
+    #[classattr]
+    fn Mpv() -> Self {
+        Self::from(RtpType::Mpv)
+    }
+    #[classattr]
+    fn Mp2t() -> Self {
+        Self::from(RtpType::Mp2t)
+    }
+    #[classattr]
+    fn H263() -> Self {
+        Self::from(RtpType::H263)
+    }
+    #[classattr]
+    fn Dynamic_1() -> Self {
+        Self::from(RtpType::Dynamic(1))
+    }
+    #[classattr]
+    fn Dynamic_2() -> Self {
+        Self::from(RtpType::Dynamic(2))
+    }
+    #[classattr]
+    fn Dynamic_3() -> Self {
+        Self::from(RtpType::Dynamic(3))
+    }
+    #[classattr]
+    fn Dynamic_4() -> Self {
+        Self::from(RtpType::Dynamic(4))
+    }
+    #[classattr]
+    fn Dynamic_5() -> Self {
+        Self::from(RtpType::Dynamic(5))
+    }
+    #[classattr]
+    fn Dynamic_6() -> Self {
+        Self::from(RtpType::Dynamic(6))
+    }
+    #[classattr]
+    fn Dynamic_7() -> Self {
+        Self::from(RtpType::Dynamic(7))
+    }
+    #[classattr]
+    fn Dynamic_8() -> Self {
+        Self::from(RtpType::Dynamic(8))
+    }
+    #[classattr]
+    fn Reserved_1() -> Self {
+        Self::from(RtpType::Reserved(1))
+    }
+    #[classattr]
+    fn Reserved_2() -> Self {
+        Self::from(RtpType::Reserved(2))
+    }
+    #[classattr]
+    fn Reserved_3() -> Self {
+        Self::from(RtpType::Reserved(3))
+    }
+    #[classattr]
+    fn Reserved_4() -> Self {
+        Self::from(RtpType::Reserved(4))
+    }
+    #[classattr]
+    fn Reserved_5() -> Self {
+        Self::from(RtpType::Reserved(5))
+    }
+    #[classattr]
+    fn Reserved_6() -> Self {
+        Self::from(RtpType::Reserved(6))
+    }
+    #[classattr]
+    fn Reserved_7() -> Self {
+        Self::from(RtpType::Reserved(7))
+    }
+    #[classattr]
+    fn Reserved_8() -> Self {
+        Self::from(RtpType::Reserved(8))
+    }
+    #[classattr]
+    fn Unassigned_1() -> Self {
+        Self::from(RtpType::Unassigned(1))
+    }
+    #[classattr]
+    fn Unassigned_2() -> Self {
+        Self::from(RtpType::Unassigned(2))
+    }
+    #[classattr]
+    fn Unassigned_3() -> Self {
+        Self::from(RtpType::Unassigned(3))
+    }
+    #[classattr]
+    fn Unassigned_4() -> Self {
+        Self::from(RtpType::Unassigned(4))
+    }
+    #[classattr]
+    fn Unassigned_5() -> Self {
+        Self::from(RtpType::Unassigned(5))
+    }
+    #[classattr]
+    fn Unassigned_6() -> Self {
+        Self::from(RtpType::Unassigned(6))
+    }
+    #[classattr]
+    fn Unassigned_7() -> Self {
+        Self::from(RtpType::Unassigned(7))
+    }
+    #[classattr]
+    fn Unassigned_8() -> Self {
+        Self::from(RtpType::Unassigned(8))
+    }
+    #[classattr]
+    fn Illegal_1() -> Self {
+        Self::from(RtpType::Illegal(1))
+    }
+    #[classattr]
+    fn Illegal_2() -> Self {
+        Self::from(RtpType::Illegal(2))
+    }
+    #[classattr]
+    fn Illegal_3() -> Self {
+        Self::from(RtpType::Illegal(3))
+    }
+    #[classattr]
+    fn Illegal_4() -> Self {
+        Self::from(RtpType::Illegal(4))
+    }
+    #[classattr]
+    fn Illegal_5() -> Self {
+        Self::from(RtpType::Illegal(5))
+    }
+    #[classattr]
+    fn Illegal_6() -> Self {
+        Self::from(RtpType::Illegal(6))
+    }
+    #[classattr]
+    fn Illegal_7() -> Self {
+        Self::from(RtpType::Illegal(7))
+    }
+    #[classattr]
+    fn Illegal_8() -> Self {
+        Self::from(RtpType::Illegal(8))
+    }
+
+    fn __str__(&self) -> String {
+        match self.rtptype {
+            RtpType::Pcmu => "<RtpType.Pcmu>".to_string(),
+            RtpType::Gsm => "<RtpType.Gsm>".to_string(),
+            RtpType::G723 => "<RtpType.G723>".to_string(),
+            RtpType::Dvi4(ix) => format!("<RtpType.Dvi4_{}>", ix),
+            RtpType::Lpc => "<RtpType.Lpc>".to_string(),
+            RtpType::Pcma => "<RtpType.Pcma>".to_string(),
+            RtpType::G722 => "<RtpType.G722>".to_string(),
+            RtpType::L16Stereo => "<RtpType.L16Stereo>".to_string(),
+            RtpType::L16Mono => "<RtpType.L16Mono>".to_string(),
+            RtpType::Qcelp => "<RtpType.Qcelp>".to_string(),
+            RtpType::Cn => "<RtpType.Cn>".to_string(),
+            RtpType::Mpa => "<RtpType.Mpa>".to_string(),
+            RtpType::G728 => "<RtpType.G728>".to_string(),
+            RtpType::G729 => "<RtpType.G729>".to_string(),
+            RtpType::CelB => "<RtpType.CelB>".to_string(),
+            RtpType::Jpeg => "<RtpType.Jpeg>".to_string(),
+            RtpType::Nv => "<RtpType.Nv>".to_string(),
+            RtpType::H261 => "<RtpType.H261>".to_string(),
+            RtpType::Mpv => "<RtpType.Mpv>".to_string(),
+            RtpType::Mp2t => "<RtpType.Mp2t>".to_string(),
+            RtpType::H263 => "<RtpType.H263>".to_string(),
+            RtpType::Dynamic(ix) => format!("<RtpType.Dynamic_{}>", ix),
+            RtpType::Reserved(ix) => format!("<RtpType.Reserved_{}>", ix),
+            RtpType::Unassigned(ix) => format!("<RtpType.Unassigned_{}>", ix),
+            RtpType::Illegal(ix) => format!("<RtpType.Illegal_{}>", ix),
+            _ => "<RtpType.?????>".to_string(),
+        }
+    }
+
+    fn __richcmp__(&self, other: Self, op: CompareOp) -> PyResult<PyObject> {
+        Python::with_gil(|py| match op {
+            CompareOp::Eq => PyResult::Ok((self.rtptype == other.rtptype).into_py(py)),
+            _ => PyResult::Err(PyTypeError::new_err(
+                "Only __eq__ is implemented for this type",
+            )),
+        })
+    }
+}
+
+#[pyclass(name = "Rtp")]
+#[derive(Clone)]
+pub struct PyRtp {
+    #[pyo3(get)]
+    pub version: u8,
+    #[pyo3(get)]
+    pub padding: u8,
+    #[pyo3(get)]
+    pub extension: u8,
+    #[pyo3(get)]
+    pub csrc_count: u8,
+    #[pyo3(get)]
+    pub marker: u8,
+    #[pyo3(get)]
+    pub payload_type: PyRtpType,
+    #[pyo3(get)]
+    pub sequence: u16,
+    #[pyo3(get)]
+    pub timestamp: u32,
+    #[pyo3(get)]
+    pub ssrc: u32,
+    #[pyo3(get)]
+    pub csrc_list: Vec<u32>,
+    #[pyo3(get)]
+    pub payload: Vec<u8>,
+}
+
+impl PyRtp {
+    fn from(packet: &Rtp) -> Self {
+        Self {
+            version: packet.version,
+            padding: packet.padding,
+            extension: packet.extension,
+            csrc_count: packet.csrc_count,
+            marker: packet.marker,
+            payload_type: PyRtpType::from(packet.payload_type),
+            sequence: packet.sequence.into(),
+            timestamp: packet.timestamp.into(),
+            ssrc: packet.ssrc,
+            csrc_list: packet.csrc_list.clone(),
+            payload: packet.payload.clone(),
+        }
+    }
+}
+
+#[pyclass(name = "VoiceData")]
+pub struct PyVoiceData {
+    #[pyo3(get)]
+    pub audio: Option<Vec<i16>>,
+    #[pyo3(get)]
+    pub packet: PyRtp,
+    #[pyo3(get)]
+    pub payload_offset: usize,
+    #[pyo3(get)]
+    pub payload_end_pad: usize,
+}
+
+impl PyVoiceData {
+    fn from(data: &VoiceData) -> Self {
+        Self {
+            audio: (*data.audio).clone(),
+            packet: PyRtp::from(data.packet),
+            payload_offset: data.payload_offset,
+            payload_end_pad: data.payload_end_pad,
+        }
+    }
 }
 
 #[pyclass(name = "SpeakingUpdateData")]
