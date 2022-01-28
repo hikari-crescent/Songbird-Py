@@ -103,6 +103,9 @@ class Queue(list):
         self.item_added.set()
         return super().__iadd__(__x)
 
+    def __str__(self: Queue) -> str:
+        return f"Queue<{super().__str__()}>"
+
     async def _play_next(self, *args) -> None:
         """Internal method. Plays the next track in the queue"""
         if not self.running:
