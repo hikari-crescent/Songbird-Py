@@ -85,8 +85,8 @@ class Voicebox(VoiceboxBase, VoiceConnection):
     async def disconnect(self) -> None:
         """Signal the process to shut down."""
         self.__is_alive = False
-        self.__on_close(self)
         await self.driver.leave()
+        await self.__on_close(self)
 
     async def join(self) -> None:
         """Wait for the process to halt before continuing."""
