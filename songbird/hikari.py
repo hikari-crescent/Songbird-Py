@@ -53,6 +53,7 @@ class Voicebox(VoiceboxBase, VoiceConnection):
         self.__is_alive = True
         self.__shard_id = shard_id
         self.__owner = owner
+        self.__on_close = on_close
 
         return self
 
@@ -84,6 +85,7 @@ class Voicebox(VoiceboxBase, VoiceConnection):
     async def disconnect(self) -> None:
         """Signal the process to shut down."""
         self.__is_alive = False
+        self.__on_close(self)
         await self.driver.leave()
 
     async def join(self) -> None:
