@@ -2,7 +2,14 @@ from __future__ import annotations
 
 from typing import Callable
 
-from songbird import Driver, Event, Source, Config, TrackHandle, Track
+from songbird import (
+    Driver,
+    Event,
+    Source,
+    Config,
+    TrackHandle,
+    Track,
+)
 
 
 class VoiceboxBase:
