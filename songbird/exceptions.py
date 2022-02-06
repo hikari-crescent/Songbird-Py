@@ -1,16 +1,23 @@
 from .songbird import (
-    YtdlError, FfmpegError, SongbirdError, ConsumedSourceError, CouldNotOpenFileError,
-    UseAsyncConstructorError
+    YtdlError,
+    FfmpegError,
+    SongbirdError,
+    ConsumedSourceError,
+    CouldNotOpenFileError,
+    UseAsyncConstructorError,
 )
 
-__all__ = (
+
+class QueueError(SongbirdError):
+    """Queue raises an exception"""
+
+
+__all__ = [
     "CouldNotOpenFileError",
     "FfmpegError",
     "YtdlError",
     "ConsumedSourceError",
     "UseAsyncConstructorError",
-    "QueueError"
-)
+    "QueueError",
+]
 
-class QueueError(SongbirdError):
-    """Queue raises an exception"""

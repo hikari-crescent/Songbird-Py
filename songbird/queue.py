@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import typing
 from asyncio import Event as AsyncEvent
 from asyncio.tasks import ensure_future
-from typing import Any, Awaitable, Callable, Iterable, List, Optional, SupportsIndex, TypeVar, Union
-from logging import WARNING, Logger
+from logging import Logger
 
 from songbird.exceptions import QueueError
 
@@ -12,13 +12,13 @@ from .songbird import Driver, Event, Track, Source, TrackHandle
 _log = Logger(__name__)
 
 
-def extract_driver(driver: Any):
+def extract_driver(driver: typing.Any):
     if isinstance(driver, Driver):
         return driver
     return driver.driver
 
 
-T = TypeVar("T")
+T = typing.TypeVar("T")
 
 
 class Queue(list):
@@ -44,11 +44,12 @@ class Queue(list):
     def __init__(
         self,
         driver: Driver,
-        on_next: Callable[[Driver, Any], Awaitable[None]] = None,
-        on_fail: Callable[[Driver, Any], Awaitable[None]] = None
+        on_next: typing.Callable[[Driver, typing.Any], typing.Awaitable[None]] | None = None,
+        on_fail: typing.Callable[[Driver, typing.Any], typing.Awaitable[None]] | None = None
     ) -> None:
+        super().__init__()
         self.driver = extract_driver(driver)
-        self.track_handle: Optional[TrackHandle] = None
+        self.track_handle: TrackHandle | None = None
         self.running = False
 
         self.on_next = on_next
@@ -62,8 +63,8 @@ class Queue(list):
     def with_items(
         cls,
         driver: Driver,
-        items: List[Union[Track, Source]],
-        **kwargs,
+        items: list[Track | Source],
+        **kwargs: typing.Any,
     ) -> Queue:
         q = cls(driver, **kwargs)
         q.extend(items)
@@ -87,11 +88,11 @@ class Queue(list):
         self.item_added.set()
         return super().append(__object)
 
-    def extend(self, __iterable: Iterable[T]) -> None:
+    def extend(self, __iterable: typing.Iterable[T]) -> None:
         self.item_added.set()
         return super().extend(__iterable)
 
-    def insert(self, __index: SupportsIndex, __object: T) -> None:
+    def insert(self, __index: typing.SupportsIndex, __object: T) -> None:
         self.item_added.set()
         return super().insert(__index, __object)
 
@@ -99,11 +100,11 @@ class Queue(list):
         self.item_added.set()
         return super().__add__(__x)
 
-    def __iadd__(self: Queue, __x: Iterable[T]) -> Queue:
+    def __iadd__(self: Queue, __x: typing.Iterable[T]) -> Queue:
         self.item_added.set()
         return super().__iadd__(__x)
 
-    async def _play_next(self, *args) -> None:
+    async def _play_next(self, *_args: typing.Any) -> None:
         """Internal method. Plays the next track in the queue"""
         if not self.running:
             return
@@ -118,7 +119,7 @@ class Queue(list):
 
             # This allows players to be added to the queue without being activated
             # immediatly helps save memory when adding an entire playlist.
-            if isinstance(next_player, Awaitable):
+            if isinstance(next_player, typing.Awaitable):
                 try:
                     next_player = await next_player
                     break
@@ -146,7 +147,7 @@ class Queue(list):
         if self.on_next:
             self.on_next(self.driver, self.track_handle)
 
-    def skip(self):
+    def skip(self) -> None:
         """Plays the next track in the queue"""
         if not self.track_handle:
             raise QueueError("No track is playing")

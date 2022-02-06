@@ -5,7 +5,7 @@ from pincer.objects import MessageContext
 from pincer.commands import command, CommandArg, Description
 
 from songbird import ytdl, Driver, PlayMode, TrackHandle, Queue
-from songbird.pincer import Voicebox
+from songbird.integration.pincer import Voicebox
 
 token = "..."
 

@@ -1,14 +1,17 @@
-"""I use Arch btw so this module exists to remove bloat"""
+"""Static help functions."""
 
-from typing import overload
+# FIXME: Typing
+
+import typing
+
 from .songbird import Source
 
 
-@overload
+@typing.overload
 async def ffmpeg(filepath: str, pre_input_args=None, args=None) -> Source: ...
 
 
-async def ffmpeg(filepath: str, **kwargs) -> Source:
+async def ffmpeg(filepath: str, **kwargs: typing.Any) -> Source:
     """Builds a ffmpeg source"""
     return await Source.ffmpeg(filepath, **kwargs)
 

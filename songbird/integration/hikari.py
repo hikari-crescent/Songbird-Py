@@ -1,41 +1,59 @@
-# mypy: ignore-errors
-
 from __future__ import annotations
 
-from typing import Callable, Awaitable, Any
+from typing import (
+    Callable,
+    Awaitable,
+    Any,
+    TypeVar,
+    Type,
+)
 
 from hikari import snowflakes, VoiceEvent, GatewayBot
 from hikari.api import VoiceComponent, VoiceConnection
 
-from .songbird import Driver
-from .voicebox_base import VoiceboxBase
+from ..songbird import Driver
+from songbird.integration.voicebox_base import VoiceboxBase
 
 
-class Voicebox(VoiceboxBase, VoiceConnection):
-    """Hikari VoiceConnection using Songbird"""
+VoiceBoxType = TypeVar("VoiceBoxType", bound="HikariVoicebox")
+
+
+class HikariVoicebox(VoiceboxBase, VoiceConnection):
+    """Hikari VoiceConnection using Songbird."""
+
+    _channel_id: snowflakes.Snowflake
+    _guild_id: snowflakes.Snowflake
+    _is_alive: bool
+    _shard_id: int
+    _owner: VoiceComponent
 
     @classmethod
-    async def connect(cls, client: GatewayBot, guild_id: snowflakes.Snowflake, channel_id: snowflakes.Snowflake) -> Voicebox:
+    async def connect(
+        cls: Type[VoiceBoxType],
+        client: GatewayBot,
+        guild_id: snowflakes.Snowflake,
+        channel_id: snowflakes.Snowflake,
+    ) -> VoiceBoxType:
         return await client.voice.connect_to(
             guild_id,
             channel_id,
-            voice_connection_type=Voicebox
+            voice_connection_type=cls,
         )
 
     @classmethod
     async def initialize(
-        cls: Voicebox,
+        cls: Type[HikariVoicebox],
         channel_id: snowflakes.Snowflake,
         endpoint: str,
         guild_id: snowflakes.Snowflake,
-        on_close: Callable[[Voicebox], Awaitable[None]],
+        on_close: Callable[[HikariVoicebox], Awaitable[None]],
         owner: VoiceComponent,
         session_id: str,
         shard_id: int,
         token: str,
         user_id: snowflakes.Snowflake,
         **kwargs: Any,
-    ) -> Voicebox:
+    ) -> HikariVoicebox:
         driver = await Driver.create()
         await driver.connect(
             token=token,
@@ -46,44 +64,44 @@ class Voicebox(VoiceboxBase, VoiceConnection):
             user_id=user_id
         )
 
-        self = Voicebox(driver)
+        class_ = cls(driver)
 
-        self.__channel_id = channel_id
-        self.__guild_id = guild_id
-        self.__is_alive = True
-        self.__shard_id = shard_id
-        self.__owner = owner
+        class_._channel_id = channel_id
+        class_._guild_id = guild_id
+        class_._is_alive = True
+        class_._shard_id = shard_id
+        class_._owner = owner
 
-        return self
+        return class_
 
     @property
     def channel_id(self) -> snowflakes.Snowflake:
         """Return the ID of the voice channel this voice connection is in."""
-        return self.__channel_id
+        return self._channel_id
 
     @property
     def guild_id(self) -> snowflakes.Snowflake:
         """Return the ID of the guild this voice connection is in."""
-        return self.__guild_id
+        return self._guild_id
 
     @property
     def is_alive(self) -> bool:
         """Return `builtins.True` if the connection is alive."""
-        return self.__is_alive
+        return self._is_alive
 
     @property
     def shard_id(self) -> int:
         """Return the ID of the shard that requested the connection."""
-        return self.__shard_id
+        return self._shard_id
 
     @property
     def owner(self) -> VoiceComponent:
         """Return the component that is managing this connection."""
-        return self.__owner
+        return self._owner
 
     async def disconnect(self) -> None:
         """Signal the process to shut down."""
-        self.__is_alive = False
+        self._is_alive = False
         await self.driver.leave()
 
     async def join(self) -> None:

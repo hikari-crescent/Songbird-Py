@@ -2,7 +2,7 @@ from asyncio import sleep
 
 import hikari
 from songbird import ytdl
-from songbird.hikari import Voicebox
+from songbird.integration.hikari import Voicebox
 
 
 bot = hikari.GatewayBot("...")

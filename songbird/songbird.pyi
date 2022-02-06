@@ -1,6 +1,12 @@
+# TODO: Docs & typing
+
 from __future__ import annotations
 
-from typing import Any, Callable, Optional, Tuple
+from typing import (
+    Any,
+    Callable,
+    TypeVar,
+)
 from dataclasses import dataclass
 
 
@@ -32,11 +38,21 @@ class FfmpegError(SongbirdError):
     ...
 
 
+DriverType = TypeVar("DriverType", bound="Driver")
+
+
 class Driver:
     @staticmethod
-    async def create() -> Driver: ...
-    async def connect(self, token: str, endpoint: str, session_id: str,
-                      guild_id: int, channel_id: int, user_id: int) -> None: ...
+    async def create() -> DriverType: ...
+    async def connect(
+        self,
+        token: str,
+        endpoint: str,
+        session_id: str,
+        guild_id: int,
+        channel_id: int,
+        user_id: int,
+    ) -> None: ...
 
     async def leave(self) -> None: ...
     async def mute(self) -> None: ...
@@ -52,38 +68,51 @@ class Driver:
     async def stop(self) -> None: ...
     async def set_config(self, config: Config) -> None: ...
     async def get_config(self) -> Config: ...
-    async def add_event(self, event: Event,
-                        call: Callable[..., None]) -> None: ...
+    async def add_event(
+        self,
+        event: Event,
+        call: Callable[..., None],
+    ) -> None: ...
 
     async def remove_all_events(self) -> None: ...
 
 
+SourceType = TypeVar("SourceType", bound="Source")
+
+
 class Source:
     @staticmethod
-    def bytes(bytes: bytes, stereo: bool) -> Source: ...
+    def bytes(bytes: bytes, stereo: bool) -> SourceType: ...
     @staticmethod
-    async def ffmpeg(filename: str, pre_input_args=None, args=None) -> Source: ...
+    async def ffmpeg(
+        filename: str,  # FIXME: Rename to `path`
+        pre_input_args: tuple[str, ...] | None = None,
+        args: tuple[str, ...] | None = None,
+    ) -> SourceType: ...
     @staticmethod
-    async def ytdl(url: str) -> Source: ...
+    async def ytdl(url: str) -> SourceType: ...
     @staticmethod
-    def file(url: str) -> Source: ...
+    def file(url: str) -> SourceType: ...
     async def metadata(self) -> Metadata: ...
     async def stereo(self) -> bool: ...
 
 
-class CryptoMode:
+class CryptoMode:  # TODO: Enum?
     Normal: CryptoMode
     Suffix: CryptoMode
     Lite: CryptoMode
 
 
+StrategyType = TypeVar("StrategyType", bound="Strategy")
+
+
 class Strategy:
     @staticmethod
-    def every(duration: float) -> Strategy: ...
+    def every(duration: float) -> StrategyType: ...
     @staticmethod
-    def backoff_default() -> Strategy: ...
+    def backoff_default() -> StrategyType: ...
     @staticmethod
-    def backoff(min: float, max: float, jitter: float) -> Strategy: ...
+    def backoff(min: float, max: float, jitter: float) -> StrategyType: ...
 
 
 class DecodeMode:
@@ -104,18 +133,21 @@ class Config:
     def preallocated_tracks(self) -> int: ...
     def set_preallocated_tracks(self, preallocated_tracks: int): ...
     @property
-    def driver_timeout(self) -> Optional[float]: ...
-    def set_driver_timeout(self, driver_timeout: Optional[float]): ...
+    def driver_timeout(self) -> float | None: ...
+    def set_driver_timeout(self, driver_timeout: float | None): ...
     @property
     def retry_strategy(self) -> Strategy: ...
     @property
-    def retry_limit(self) -> Optional[int]: ...
-    def set_driver_retry(self, strategy: Strategy,
-                         retry_limit: Optional[int]): ...
+    def retry_limit(self) -> int | None: ...
+    def set_driver_retry(
+        self,
+        strategy: Strategy,
+        retry_limit: int| None,
+    ): ...
 
     @property
-    def gateway_timeout(self) -> Optional[float]: ...
-    def set_gateway_timeout(self, gateway_timeout: Optional[float]): ...
+    def gateway_timeout(self) -> float | None: ...
+    def set_gateway_timeout(self, gateway_timeout: float | None): ...
 
 
 class TrackHandle:
@@ -157,24 +189,24 @@ class PlayMode:
 
 @dataclass
 class Metadata:
-    track: Optional[str] = None
-    artist: Optional[str] = None
-    date: Optional[str] = None
-    channels: Optional[int] = None
-    channel: Optional[str] = None
-    start_time: Optional[float] = None
-    duration: Optional[float] = None
-    sample_rate: Optional[int] = None
-    source_url: Optional[str] = None
-    title: Optional[str] = None
-    thumbnail: Optional[str] = None
+    track: str | None = None
+    artist: str | None = None
+    date: str | None = None
+    channels: int | None = None
+    channel: str | None = None
+    start_time: float | None = None
+    duration: float | None = None
+    sample_rate: int | None = None
+    source_url: str | None = None
+    title: str | None = None
+    thumbnail: str | None = None
 
 
 class LoopCount:
-    loop_state: Optional[int]
+    loop_state: int | None
 
 
-async def create_player(source: Source) -> Tuple[Track, TrackHandle]: ...
+async def create_player(source: Source) -> tuple[Track, TrackHandle]: ...
 
 
 class Track:
@@ -193,6 +225,9 @@ class Track:
     async def uuid(self) -> str: ...
 
 
+EventType = TypeVar("EventType", bound="Event")
+
+
 class Event:
     Cancel: Event
     Play: Event
@@ -206,10 +241,13 @@ class Event:
     DriverReconnect: Event
     DriverDisconnect: Event
 
-    def periodic(self, duration: float,
-                 phase: Optional[float] = None) -> Event: ...
+    def periodic(
+        self,
+        duration: float,
+        phase: float | None = None
+    ) -> EventType: ...
 
-    def delayed(self, duration: float) -> Event: ...
+    def delayed(self, duration: float) -> EventType: ...
 
 
 class SpeakingState:
@@ -219,10 +257,10 @@ class SpeakingState:
 
 
 class Speaking:
-    delay: Optional[int]
+    delay: int | None
     speaking: SpeakingState
     ssrc: int
-    user_id: Optional[int]
+    user_id: int | None
 
 
 class SpeakingUpdateData:
@@ -247,7 +285,7 @@ class ConnectData:
 class DisconnectData:
     kind: DisconnectKind
     reason: DisconnectReason
-    channel_id: Optional[int]
+    channel_id: int | None
     guild_id: int
     session_id: str
 

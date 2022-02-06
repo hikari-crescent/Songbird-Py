@@ -3,11 +3,13 @@ from pincer.client import Client
 
 from pincer.core import GatewayDispatch, Gateway
 
-from .songbird import Driver
-from .voicebox_base import VoiceboxBase
+from ..songbird import Driver
+from songbird.integration.voicebox_base import VoiceboxBase
 
 
-class Voicebox(VoiceboxBase):
+class PincerVoicebox(VoiceboxBase):
+    """Pincer VoiceConnection using Songbird."""
+
     def __init__(self, driver: Driver, shard: Gateway, guild_id: int) -> None:
         self.shard = shard
         self.guild_id = guild_id
