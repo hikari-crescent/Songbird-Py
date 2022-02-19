@@ -28,6 +28,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "arc-swap"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5d78ce20460b82d3fa150275ed9d55e21064fc7951177baacf86a145c4a4b1f"
+
+[[package]]
 name = "arrayvec"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1069,6 +1075,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "pyo3-log"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57d43bb6bf4460e400696a4c8b4b647362e1eddc4ac31b993998692e4c2a9a5f"
+dependencies = [
+ "arc-swap",
+ "log",
+ "pyo3",
+]
+
+[[package]]
 name = "pyo3-macros"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1525,6 +1542,7 @@ dependencies = [
  "discortp",
  "pyo3",
  "pyo3-asyncio",
+ "pyo3-log",
  "songbird",
  "tokio",
 ]

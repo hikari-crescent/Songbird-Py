@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use pyo3_log::{Logger, Caching};
 
 mod exceptions;
 use exceptions::{
@@ -18,6 +19,8 @@ mod utils;
 /// This module is written in Rust 🚀
 #[pymodule]
 fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
+    let _ = Logger::new(py, Caching::LoggersAndLevels)?.install();
+
     m.add_class::<driver::PyDriver>()?;
     m.add_class::<source::PySource>()?;
 
