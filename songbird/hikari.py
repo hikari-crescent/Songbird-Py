@@ -88,6 +88,10 @@ class Voicebox(VoiceboxBase, VoiceConnection):
         await self.driver.leave()
         await self.__on_close(self)
 
+    async def leave(self) -> None:
+        """Does the same thing as disconnect"""
+        await self.disconnect()
+
     async def join(self) -> None:
         """Wait for the process to halt before continuing."""
 
