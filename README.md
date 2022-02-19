@@ -7,6 +7,8 @@ Its written with rust-bindings to [Songbird](https://github.com/serenity-rs/song
 ## Dependencies
 This library requires [Opus](https://www.opus-codec.org/) to be installed. `ffmpeg` functions also require [FFmpeg](https://ffmpeg.org/) to be installed.
 
+:warning: The `static-ffmpeg` package on pypi does not work
+
 ### Building Source Dist
 If you are not on windows, macos, or linux x86_64 or need to use a version of python different than 3.8-3.10 you will need to build the source dist. The only change to the installation process is that [Rust](https://www.rust-lang.org/tools/install) will need to be installed before installing from pip.
 
