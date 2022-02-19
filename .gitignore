@@ -13,6 +13,7 @@ test.py
 
 # Sound
 *.mp3
+*.raw
 
 tools/
 
