@@ -10,6 +10,10 @@ use songbird::input::{Input, Reader};
 use crate::exceptions::{ConsumedSourceError, CouldNotOpenFileError, FfmpegError, YtdlError};
 use crate::track_handle::PyMetadata;
 
+mod builtins {
+    pyo3::import_exception!(builtins, FileNotFoundError);
+}
+
 #[pyclass(name = "Source")]
 pub struct PySource {
     /// Represents an object that can be turned into an input.
@@ -125,10 +129,15 @@ impl PySource {
             let pre_input_args: Vec<&str> = pre_input_args.iter().map(String::as_str).collect();
             let args: Vec<&str> = args.iter().map(String::as_str).collect();
 
+            if !std::path::Path::new(&filepath).exists() {
+                return Err(builtins::FileNotFoundError::new_err(format!("File `{}` does not exist", filepath)));
+            };
+
             match if pre_input_args.is_empty() && args.is_empty() {
                 songbird::ffmpeg(filepath).await
             } else {
-                songbird::input::ffmpeg_optioned(filepath, pre_input_args.as_ref(), args.as_ref()).await
+                songbird::input::ffmpeg_optioned(filepath, pre_input_args.as_ref(), args.as_ref())
+                    .await
             } {
                 Ok(res) => Ok(Self::from(res)),
                 Err(err) => Err(FfmpegError::new_err(format!("{:?}", err))),
