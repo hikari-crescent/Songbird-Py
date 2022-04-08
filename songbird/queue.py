@@ -147,7 +147,7 @@ class Queue(list):
             )
 
         if self.on_next:
-            self.on_next(self.driver, self.track_handle)
+            ensure_future(self.on_next(self.driver, self.track_handle))
 
     def skip(self):
         """Plays the next track in the queue"""
