@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 tokio = { version = "1", features = ["sync"] }
 async-trait = "0.1.53"
 pyo3-log = "0.6.0"
+log = "0.4.17"
 
 [dependencies.songbird]
 version = "0.2.2"

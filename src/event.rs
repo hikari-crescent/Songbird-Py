@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
+use log::warn;
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::{PyNotImplementedError, PyTypeError};
 use pyo3::prelude::*;
@@ -86,12 +87,6 @@ fn event_to_py(py: Python, event: &EventContext) -> PyResult<PyObject> {
         EventContext::SpeakingUpdate(data) => Ok(PySpeakingUpdateData {
             speaking: data.speaking,
             ssrc: data.ssrc,
-        }
-        .into_py(py)),
-        EventContext::ClientConnect(data) => Ok(PyClientConnect {
-            audio_ssrc: data.audio_ssrc,
-            user_id: data.user_id.0,
-            video_ssrc: data.video_ssrc,
         }
         .into_py(py)),
         EventContext::ClientDisconnect(disconnect) => Ok(disconnect.user_id.0.into_py(py)),
@@ -203,8 +198,8 @@ impl PyEvent {
     }
     #[classattr]
     /// Fires whenever a user connects to the same stream as the bot.
-    fn ClientConnect() -> Self {
-        Self::from(Event::Core(CoreEvent::ClientConnect))
+    fn ClientConnect() -> () {
+        warn!("Event.ClientConnect is deprecated. Please use the VoiceStateUpdate gateway event to detect when a user joins a voice channel.")
     }
     #[classattr]
     /// Fires whenever a user disconnects from the same stream as the bot.
