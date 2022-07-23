@@ -24,7 +24,7 @@ impl From<Restartable> for PyRestartableSource {
 
 #[pymethods]
 impl PyRestartableSource {
-    /// Convert the RestartableSource into a Source
+    /// Convert the `RestartableSource` into a `Source`
     ///
     /// Example
     /// .. code-block:: python
@@ -33,6 +33,7 @@ impl PyRestartableSource {
     ///     restartable: songbird.RestartableSource
     ///     driver: songbird.Driver
     ///     driver.play_source(restartable.into_source())
+    ///
     fn into_source(&mut self) -> Result<PySource, PyErr> {
         let maybe_restartable = mem::take(&mut self.restartable);
         if let Some(restartable) = maybe_restartable {
@@ -89,18 +90,26 @@ impl PyCompressedSource {
         ))
     }
 
-    /// Convert the MemorySource into a Source
+    /// Convert the `CompressedSource` into a `Source`
     fn into_source(&mut self) -> Result<PySource, PyErr> {
         let maybe_compressed = mem::take(&mut self.compressed);
         if let Some(compressed) = maybe_compressed {
             Ok(PySource::from(compressed.into()))
         } else {
             Err(ConsumedSourceError::new_err(
-                "MemorySource already converted to source.",
+                "CompressedSource already converted to source.",
             ))
         }
     }
 
+    /// Create a `CompressedSource` from a `Source`.
+    ///
+    /// Example
+    /// .. code-block:: python
+    ///
+    /// from songbird import CompressedSource, ytdl
+    /// compressed = CompressedSource.from_source(await ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
+    ///
     #[staticmethod]
     fn from_source<'p>(
         py: Python<'p>,
