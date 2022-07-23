@@ -67,6 +67,7 @@ impl PySource {
     /// Use youtube dl to play a video from a URL
     ///
     /// Example
+    ///
     /// .. code-block:: python
     ///
     ///     await driver.play(Source.ytdl("https://www.youtube.com/watch?v=n5n7CSGPzqw"))
@@ -130,7 +131,10 @@ impl PySource {
             let args: Vec<&str> = args.iter().map(String::as_str).collect();
 
             if !std::path::Path::new(&filepath).exists() {
-                return Err(builtins::FileNotFoundError::new_err(format!("File `{}` does not exist", filepath)));
+                return Err(builtins::FileNotFoundError::new_err(format!(
+                    "File `{}` does not exist",
+                    filepath
+                )));
             };
 
             match if pre_input_args.is_empty() && args.is_empty() {

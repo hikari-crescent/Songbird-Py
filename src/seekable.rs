@@ -26,7 +26,6 @@ impl From<Restartable> for PyRestartableSource {
 impl PyRestartableSource {
     /// Convert the `RestartableSource` into a `Source`
     ///
-    /// Example
     /// .. code-block:: python
     ///
     ///     import songbird
@@ -104,11 +103,10 @@ impl PyCompressedSource {
 
     /// Create a `CompressedSource` from a `Source`.
     ///
-    /// Example
     /// .. code-block:: python
     ///
-    /// from songbird import CompressedSource, ytdl
-    /// compressed = CompressedSource.from_source(await ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
+    ///     from songbird import CompressedSource, ytdl
+    ///     compressed = CompressedSource.from_source(await ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
     ///
     #[staticmethod]
     fn from_source<'p>(
