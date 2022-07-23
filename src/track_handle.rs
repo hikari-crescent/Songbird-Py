@@ -264,8 +264,7 @@ impl PyTrackHandle {
     fn set_volume(&self, volume: f32) -> PyResult<()> {
         handle_track_result(self.track_handle.set_volume(volume))
     }
-    /// Makes a lazily initialized track playable. This does not matter to the current
-    /// functionality of the lib because ``Restartable`` is not implemented.
+    /// Makes a lazily initialized track playable.
     #[pyo3(text_signature = "($self)")]
     fn make_playable(&self) -> PyResult<()> {
         handle_track_result(self.track_handle.make_playable())
