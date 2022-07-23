@@ -55,9 +55,9 @@ impl PyRestartableSource {
 
     /// Create a seekable source from a file with ffmpeg.
     #[staticmethod]
-    fn ffmpeg<'p>(py: Python, filepath: String, lazy: bool) -> PyResult<&PyAny> {
+    fn ffmpeg<'p>(py: Python, filename: String, lazy: bool) -> PyResult<&PyAny> {
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            match Restartable::ffmpeg(filepath, lazy).await {
+            match Restartable::ffmpeg(filename, lazy).await {
                 Ok(res) => Ok(Self::from(res)),
                 Err(err) => Err(FfmpegError::new_err(format!("{:?}", err))),
             }
