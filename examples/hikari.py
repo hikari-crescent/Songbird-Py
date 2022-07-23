@@ -12,7 +12,7 @@ bot = hikari.GatewayBot("...")
 async def ping(event: hikari.ShardReadyEvent) -> None:
     voice = await Voicebox.connect(bot, YOUR_GUILD_ID, YOUR_CHANNEL_ID)
 
-    track_handle = await voice.play_source(await ytdl("https://www.youtube.com/watch?v=r25MAkzkTF4"))
+    track_handle = await voice.play_source(await ytdl("https://soundcloud.com/lfarran/final-fantasy-xiv-dragonsong"))
 
     await sleep(5)
     # Doesn't need to be awaited!

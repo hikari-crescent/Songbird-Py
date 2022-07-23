@@ -3,9 +3,11 @@ use std::mem;
 use pyo3::prelude::*;
 use songbird::input::{cached::Compressed, Restartable};
 
-use crate::exceptions::{ConsumedSourceError, CouldNotConstructError, FfmpegError, YtdlError};
-use crate::source::PySource;
 use crate::config::PyBitrate;
+use crate::exceptions::{
+    ConsumedSourceError, CouldNotConstructError, FfmpegError, UseAsyncConstructorError, YtdlError,
+};
+use crate::source::PySource;
 
 #[pyclass(name = "RestartableSource")]
 pub struct PyRestartableSource {
@@ -80,6 +82,13 @@ impl From<Compressed> for PyCompressedSource {
 
 #[pymethods]
 impl PyCompressedSource {
+    #[new]
+    fn new() -> PyResult<Self> {
+        Err(UseAsyncConstructorError::new_err(
+            "Use `CompressedSource.from_source` to create a `CompressedSource` object.",
+        ))
+    }
+
     /// Convert the MemorySource into a Source
     fn into_source(&mut self) -> Result<PySource, PyErr> {
         let maybe_compressed = mem::take(&mut self.compressed);
@@ -93,7 +102,11 @@ impl PyCompressedSource {
     }
 
     #[staticmethod]
-    fn from_source<'p>(py: Python<'p>, input: &PySource, bitrate: &PyBitrate) -> PyResult<&'p PyAny> {
+    fn from_source<'p>(
+        py: Python<'p>,
+        input: &PySource,
+        bitrate: &PyBitrate,
+    ) -> PyResult<&'p PyAny> {
         let source = input.source.clone();
         let bitrate = bitrate.bitrate;
 

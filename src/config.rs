@@ -228,13 +228,13 @@ pub struct PyBitrate {
 #[allow(non_snake_case)]
 impl PyBitrate {
     #[classattr]
-    fn Auto() -> Self {
+    fn AUTO() -> Self {
         Self {
             bitrate: Bitrate::Auto
         }
     }
     #[classattr]
-    fn Max() -> Self {
+    fn MAX() -> Self {
         Self {
             bitrate: Bitrate::Max
         }
