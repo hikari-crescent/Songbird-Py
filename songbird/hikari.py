@@ -1,5 +1,3 @@
-# mypy: ignore-errors
-
 from __future__ import annotations
 
 from typing import Callable, Awaitable, Any
@@ -14,6 +12,27 @@ from .voicebox_base import VoiceboxBase
 class Voicebox(VoiceboxBase, VoiceConnection):
     """Hikari VoiceConnection using Songbird"""
 
+    def __init__(
+        self,
+        driver: Driver,
+        *,
+        channel_id: snowflakes.Snowflake,
+        guild_id: snowflakes.Snowflake,
+        is_alive: bool,
+        shard_id: int,
+        owner: VoiceComponent,
+        on_close: Callable[[Voicebox], Awaitable[None]],
+    ) -> None:
+        super().__init__(driver)
+
+        self.__channel_id = channel_id
+        self.__guild_id = guild_id
+        self.__is_alive = is_alive
+        self.__shard_id = shard_id
+        self.__owner = owner
+        self.__on_close = on_close
+
+
     @classmethod
     async def connect(cls, client: GatewayBot, guild_id: snowflakes.Snowflake, channel_id: snowflakes.Snowflake) -> Voicebox:
         return await client.voice.connect_to(
@@ -24,7 +43,7 @@ class Voicebox(VoiceboxBase, VoiceConnection):
 
     @classmethod
     async def initialize(
-        cls: Voicebox,
+        cls: type[Voicebox],
         channel_id: snowflakes.Snowflake,
         endpoint: str,
         guild_id: snowflakes.Snowflake,
@@ -46,14 +65,15 @@ class Voicebox(VoiceboxBase, VoiceConnection):
             user_id=user_id
         )
 
-        self = Voicebox(driver)
-
-        self.__channel_id = channel_id
-        self.__guild_id = guild_id
-        self.__is_alive = True
-        self.__shard_id = shard_id
-        self.__owner = owner
-        self.__on_close = on_close
+        self = Voicebox(
+            driver,
+            channel_id=channel_id,
+            guild_id=guild_id,
+            is_alive=True,
+            shard_id=shard_id,
+            owner=owner,
+            on_close=on_close,
+        )
 
         return self
 
