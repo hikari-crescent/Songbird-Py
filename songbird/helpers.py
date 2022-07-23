@@ -4,12 +4,13 @@ from typing import overload
 from .songbird import Source
 
 
-@overload
-async def ffmpeg(filepath: str, pre_input_args=None, args=None) -> Source: ...
-
-
-async def ffmpeg(filepath: str, **kwargs) -> Source:
+async def ffmpeg(filepath: str, pre_input_args=None, args=None) -> Source:
     """Builds a ffmpeg source"""
+    kwargs = {}
+    if args:
+        kwargs["args"] = args
+    if pre_input_args:
+        kwargs["pre_input_args"] = pre_input_args
     return await Source.ffmpeg(filepath, **kwargs)
 
 

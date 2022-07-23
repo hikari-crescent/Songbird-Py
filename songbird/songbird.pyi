@@ -171,6 +171,7 @@ class Metadata:
     thumbnail: Optional[str] = None
 
     def __init__(
+        self,
         track: Optional[str] = None,
         artist: Optional[str] = None,
         date: Optional[str] = None,
