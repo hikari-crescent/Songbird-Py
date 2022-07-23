@@ -3,7 +3,7 @@ use std::time::Duration;
 use pyo3::prelude::*;
 use songbird::driver::{
     retry::{ExponentialBackoff, Retry, Strategy},
-    CryptoMode, DecodeMode,
+    Bitrate, CryptoMode, DecodeMode,
 };
 use songbird::Config;
 
@@ -120,11 +120,11 @@ impl PyDecodeMode {
 }
 
 /// Config objects are how you set a driver's configuration.
-/// 
+///
 /// .. note::
-/// 
+///
 ///     Changes in a Config object are only passed to the ``Driver`` with the ``set_config`` method.
-/// 
+///
 #[pyclass(name = "Config")]
 #[pyo3(text_signature = "(/)")]
 pub struct PyConfig {
@@ -216,5 +216,33 @@ impl PyConfig {
     fn set_gateway_timeout(&mut self, gateway_timeout: Option<f64>) {
         let config = self.config.clone();
         self.config = config.gateway_timeout(unwrap_f64_to_duration(gateway_timeout))
+    }
+}
+
+#[pyclass(name = "Bitrate")]
+pub struct PyBitrate {
+    pub bitrate: Bitrate
+}
+
+#[pymethods]
+#[allow(non_snake_case)]
+impl PyBitrate {
+    #[classattr]
+    fn Auto() -> Self {
+        Self {
+            bitrate: Bitrate::Auto
+        }
+    }
+    #[classattr]
+    fn Max() -> Self {
+        Self {
+            bitrate: Bitrate::Max
+        }
+    }
+    #[staticmethod]
+    fn bits_per_second(bits: i32) -> Self {
+        Self {
+            bitrate: Bitrate::BitsPerSecond(bits)
+        }
     }
 }

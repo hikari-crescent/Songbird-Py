@@ -25,7 +25,7 @@ pub struct PySource {
 }
 
 impl PySource {
-    fn from(input: Input) -> Self {
+    pub fn from(input: Input) -> Self {
         Self {
             source: Arc::from(Mutex::from(Some(input))),
             consumed: false,

@@ -11,6 +11,7 @@ mod config;
 mod driver;
 mod event;
 mod source;
+mod seekable;
 mod track;
 mod track_handle;
 mod utils;
@@ -23,12 +24,15 @@ fn songbird(py: Python, m: &PyModule) -> PyResult<()> {
 
     m.add_class::<driver::PyDriver>()?;
     m.add_class::<source::PySource>()?;
+    m.add_class::<seekable::PyRestartableSource>()?;
+    m.add_class::<seekable::PyCompressedSource>()?;
 
     // Config
     m.add_class::<config::PyConfig>()?;
     m.add_class::<config::PyCryptoMode>()?;
     m.add_class::<config::PyDecodeMode>()?;
     m.add_class::<config::PyStrategy>()?;
+    m.add_class::<config::PyBitrate>()?;
 
     // Track_handler
     m.add_class::<track_handle::PyPlayMode>()?;
