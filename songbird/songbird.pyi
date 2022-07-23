@@ -380,4 +380,5 @@ class RtpType:
 class Bitrate:
     AUTO: Bitrate
     MAX: Bitrate
-    def bits_per_second(bits: int) -> Bitrate: ...
+    @classmethod
+    def bits_per_second(cls, bits: int) -> Bitrate: ...
