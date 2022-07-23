@@ -1,6 +1,5 @@
 """I use Arch btw so this module exists to remove bloat"""
 
-from typing import overload
 from .songbird import Source
 
 
