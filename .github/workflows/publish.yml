@@ -60,10 +60,9 @@ jobs:
 
     env:
       SCCACHE_VERSION: 0.2.13
-      CIBW_BEFORE_ALL_LINUX: >
+      CIBW_BEFORE_BUILD_LINUX: >
         curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y &&
-        yum install -y opus &&
-        yum install cmake3
+        apt install -y opus
       CIBW_BUILD_VERBOSITY: "1" # Make some more noise to not stall, and extra debugging.
       CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
       CIBW_SKIP: "cp27-* cp34-* cp35-* pp* *-win32"
