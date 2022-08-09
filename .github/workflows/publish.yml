@@ -62,7 +62,7 @@ jobs:
       SCCACHE_VERSION: 0.2.13
       CIBW_BEFORE_ALL_LINUX: |
         curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y;
-        apt-get -y install libopus-dev;
+        apt -y install libopus-dev;
       CIBW_BUILD_VERBOSITY: "1" # Make some more noise to not stall, and extra debugging.
       CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
       CIBW_SKIP: "cp27-* cp34-* cp35-* pp* *-win32"
