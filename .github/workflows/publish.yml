@@ -60,8 +60,7 @@ jobs:
 
     env:
       SCCACHE_VERSION: 0.2.13
-      CIBW_BEFORE_ALL_LINUX: 
-        "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
+      CIBW_BEFORE_ALL_LINUX: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
         sudo apt update
         sudo apt -y install libopus-dev"
       CIBW_BUILD_VERBOSITY: "1" # Make some more noise to not stall, and extra debugging.
