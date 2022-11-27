@@ -2,11 +2,10 @@
 
 name: Release to to PyPi and GitHub
 
-on: [push, pull_request]
-
-# on:
-#   release:
-#     types: [published]
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   build_wheels:
@@ -15,19 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version:
-          [38, 39, 310, 311]
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: [38, 39, 310, 311]
 
-    env:
-      SCCACHE_VERSION: 0.2.13
-      CIBW_BEFORE_BUILD_LINUX: >
-        curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y &&
-        yum install -y opus &&
-        ./install_cmake.sh
-      CIBW_BUILD_VERBOSITY: "1" # Make some more noise to not stall, and extra debugging.
-      CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
+    # env:
+    #   SCCACHE_VERSION: 0.2.13
 
     steps:
       - uses: actions/checkout@v2
