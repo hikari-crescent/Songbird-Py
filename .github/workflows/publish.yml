@@ -9,54 +9,16 @@ on: [push, pull_request]
 #     types: [published]
 
 jobs:
-  # build_manylinux:
-  #   name: Build manylinux wheels
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.8, 3.9, "3.10"]
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Install libopus-dev
-  #       run: |
-  #         sudo apt update
-  #         sudo apt -y install libopus-dev
-  #     - uses: actions/setup-python@v2
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
-  #     - uses: messense/maturin-action@v1
-  #       with:
-  #         maturin-version: latest
-  #         command: build
-  #         args: --release -o dist
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         path: dist/*.whl
-
   build_wheels:
     name: Build wheels on ${{ matrix.os }} - ${{ matrix.vers }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - vers: i686
-            os: ubuntu-20.04
-          - vers: aarch64
-            os: ubuntu-20.04
-          - vers: auto64
-            os: ubuntu-20.04
-          - vers: arm64
-            os: macos-10.15
-          - vers: auto64
-            os: macos-10.15
-          - vers: auto64
-            os: windows-2019
+        os:
+          ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version:
+          [38, 39, 310, 311]
 
     env:
       SCCACHE_VERSION: 0.2.13
@@ -66,7 +28,6 @@ jobs:
         ./install_cmake.sh
       CIBW_BUILD_VERBOSITY: "1" # Make some more noise to not stall, and extra debugging.
       CIBW_ENVIRONMENT: 'PATH="$PATH:$HOME/.cargo/bin"'
-      CIBW_SKIP: "cp27-* cp34-* cp35-* pp* *-win32"
 
     steps:
       - uses: actions/checkout@v2
@@ -82,26 +43,10 @@ jobs:
         with:
           platforms: all
 
-        env:
-          CIBW_ARCHS_LINUX: ${{ matrix.vers }}
-
-      - name: wheels Linux ${{ matrix.vers }}
-        if: runner.os == 'Linux'
-        uses: joerick/cibuildwheel@v1.12.0
-        env:
-          CIBW_ARCHS_LINUX: ${{ matrix.vers }}
-
-      - name: wheels Macos ${{ matrix.vers }}
-        if: runner.os == 'Macos'
+      - name: wheels ${{ matrix.os }} ${{ matrix.vers }}
         uses: joerick/cibuildwheel@v2.2.2
         env:
-          CIBW_ARCHS_MACOS: ${{ matrix.vers }}
-
-      - name: wheels Windows ${{ matrix.vers }}
-        if: runner.os == 'Windows'
-        uses: joerick/cibuildwheel@v2.2.2
-        env:
-          CIBW_ARCHS_WINDOWS: ${{ matrix.vers }}
+          CIBW_BUILD: "cp${{ matrix.python-version}}-*"
 
       - uses: actions/upload-artifact@v2
         with:
