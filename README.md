@@ -1,3 +1,6 @@
+> ⚠️ This library is on lifeline support and I am looking for a new maintainer. Please DM me if you
+> are interested.
+
 # Songbird-Py
 Songbird bindings for python. The goal is to provide an easy to use alternitive to Lavalink.
 Its written with rust-bindings to [Songbird](https://github.com/serenity-rs/songbird).
